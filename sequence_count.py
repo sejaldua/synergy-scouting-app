@@ -11,8 +11,8 @@ import operator
 def run_analytics(games, team):
     sequence = ["Spot-Up"]
     count = 0
-    print("Hebbit", team)
-    player_dict = {}
+    
+    play_dict = {}
     for game in games:
         for poss in game:
             if poss["team"] == team:
@@ -21,7 +21,7 @@ def run_analytics(games, team):
                 # example: ['Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts', '25 Fru Che', \
                 # 'Offensive Rebound', 'Short', 'Run Offense', '3 Devonn Allen', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts']
                 # should be split into two at each Spot-Up
-
+                print("plays are", plays)
                 repeat_indices = []
                 for idx, play in enumerate(plays):
                     
@@ -47,13 +47,38 @@ def run_analytics(games, team):
 
                     # Tally guarded/open, shot length [#num short, #num med, #num long]
                     if match:
-                        print('plays', plays)
-                        # print('play atindex is', plays[index-1])
-                        player_plays = plays[index:]
-                        # print('len of plays', len(plays), plays[index:])
-                        # player_dict.add(plays[index-1], plays[index:]
+                        if (plays[index+1] in play_dict):
+                            play_dict[plays[index+1]].append(plays[index+2:])
+                        else:
+                            play_dict[plays[index+1]] = [plays[index+2:]]
+                            
                         count += 1
                         break
+    print("play dict",  play_dict)
+
+    all_tally_dicts = {}
+    for key in play_dict.keys():
+        tallies = {
+            "make": 0,
+            "miss": 0,
+            "guarded": 0,
+            "open": 0,
+        }
+
+        for poss_plays in play_dict[key]:
+            for play in poss_plays:
+                print("val is", play, play[:4])
+                if play == 'Guarded':
+                    tallies['guarded'] = tallies['guarded'] + 1
+                elif play == "Open":
+                    tallies['open'] = tallies['open'] + 1
+                elif play[:4] == 'Make':
+                    tallies['make'] = tallies['make'] + 1
+                elif play[:4] == 'Miss':
+                    tallies['miss'] = tallies['miss'] + 1
+        print("tallies are", tallies)
+        all_tally_dicts[key] = tallies
+    print("all tally dicts", all_tally_dicts)
     # second value as the row, success or make, open or guarded
     # split on multiple spot ups/sequence at 0
     # get a spot up, go to sub-spotup in the dictionary, add 
