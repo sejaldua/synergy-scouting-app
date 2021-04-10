@@ -13,14 +13,17 @@ import altair as alt
 import plotly.graph_objects as go
 from pathlib import Path
 
+TEAMS_TO_SCOUT = ["amherst", "bates", "colby", "hamilton", "middlebury", "trinity"]
+team_mappings = {"amherst": "AMH", "bates": "BAT", "colby": "COL", "hamilton": "HC", "middlebury": "MID", "trinity": "TCT"}
+PLAY_TYPES = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds (put backs)", "Off Screen", "Isolation", "P&R Roll Man", "Miscellaneous"]
+
 # Turn error messaging on (True), or off (False)
 print_err = False
 
 keep_row = False
 raw_data = []
 possessions = []
-TEAMS_TO_SCOUT = ["amherst", "bates", "colby", "hamilton", "middlebury", "trinity"]
-team_mappings = {"amherst": "AMH", "bates": "BAT", "colby": "COL", "hamilton": "HC", "middlebury": "MID", "trinity": "TCT"}
+
 
 # Handler functions for the HTML parser
 class MyHTMLParser(HTMLParser):
@@ -159,6 +162,7 @@ if __name__ == "__main__":
     folder = st.sidebar.selectbox('Choose a team to scout', TEAMS_TO_SCOUT)  
     all_opponents = get_opponents(folder)
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
+    play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
     team = team_mappings[folder] # Team that the analysis will focus on
     module = "sequence_dump"
     game_files = []
@@ -239,7 +243,7 @@ if __name__ == "__main__":
 
     # Run whatever analysis you'd like on the data
     stat_module = import_module(module)
-    st.write(stat_module.run_analytics(games, team))
+    st.write(stat_module.run_analytics(games, team, [play_type]))
 
     # For verification/sanity-checking purposes, dump all the collected data
     if print_err:
