@@ -153,13 +153,16 @@ module = sys.argv[2]
 game_files = []
 games = []
 teams = {} # List of teams encounters and the possession count of each
-team = "N/A" # Team that the analysis will focus on
+team = "AMH" # Team that the analysis will focus on
+opponents = ["Williams", "Bowdoin", "Colby"]
 
-# In the specified folder, get all of the .html game_files.
+# In the specified folder, get all of the .html game_files of interest.
 # Each one represents a game of play-by-play data.
 for file in os.listdir(folder):
     if file.endswith(".html"):
-        game_files.append(file)
+        opponent = file[file.find('-')+1:file.find('.html')]
+        if opponent in opponents:
+            game_files.append(file)
 
 # Loop through each game and create our internal play-by-play structure
 for game in game_files:
@@ -221,6 +224,7 @@ for game in game_files:
 
 # The team with the highest possession count is the focus of the analysis
 team = max(teams.items(), key=operator.itemgetter(1))[0]
+print(teams)
 
 # DONE WITH DATA PARSING AND CLEANING
 

@@ -9,7 +9,6 @@ import operator
 #sejal doing oponents - step that lets user select subset of opponents, in run analytics what do we need to do to only focus on those games
 
 def run_analytics(games, team):
-
     sequence = ["Spot-Up"]
     count = 0
     print("Hebbit", team)
