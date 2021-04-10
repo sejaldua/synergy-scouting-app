@@ -1,7 +1,7 @@
 import operator
 
 def run_analytics(games, team):
-    sequence = ["24 Jack Farrell", "Transition", "Turnover"]
+    sequence = ["Spot-Up", "No Dribble Jumper"]
     count = 0
     
     for game in games:

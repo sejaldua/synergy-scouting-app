@@ -1,10 +1,13 @@
 import operator
+import streamlit as st
 
 def run_analytics(games, team):
+    # print()
+    # print("in sequence dump")
+    # print()
     full_seq = True
-    sequence_1 = ["10 Matt Folger", "Spot-Up", "No Dribble Jumper"]
-    sequence_2 = ["fart"]
-    
+    sequence_1 = ["Spot-Up", "No Dribble Jumper"]
+    output = []
     for game in games:
         for poss in game:
             if poss["team"] == team:
@@ -35,35 +38,6 @@ def run_analytics(games, team):
                             
                             play_seq = play_seq[0:len(play_seq) - 2]
                         
-                        print(play_seq)
+                        output.append(play_seq)
                         break
-    print()                
-    for game in games:
-        for poss in game:
-            if poss["team"] == team:
-                plays = poss["plays"]
-                
-                for index in range(0, len(plays)):
-                    match = True
-                    
-                    for seq_index in range(0, len(sequence_2)):
-                        if index + seq_index >= len(plays):
-                            match = False
-                            break
-                            
-                        if plays[index + seq_index] != sequence_2[seq_index]:
-                            match = False
-                            break
-                            
-                    if match:
-                        play_seq = ""
-                        
-                        for match_index in range(index, len(plays)):
-                            play_seq += "{} > ".format(plays[match_index])
-                        
-                        play_seq = play_seq[0:len(play_seq) - 2]
-                        print(play_seq)
-                        break
-                    
-        
-                            
+    return output
