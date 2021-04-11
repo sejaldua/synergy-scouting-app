@@ -159,7 +159,8 @@ def get_opponents(folder):
 # MAIN SCRIPT BODY  
 if __name__ == "__main__":
     st.title('Synergy Scouting App  :basketball::bar_chart:')
-    folder = st.sidebar.selectbox('Choose a team to scout', TEAMS_TO_SCOUT)  
+    folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
+    folder = folder.lower()
     all_opponents = get_opponents(folder)
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
     play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
