@@ -155,6 +155,17 @@ def addStats():
 def get_opponents(folder):
     return [f[f.find('-')+1:f.find('.html')] for f in os.listdir(folder) if f.endswith(".html")]
 
+def get_game_files(folder, opponents):
+    # In the specified folder, get all of the .html game_files of interest.
+    # Each one represents a game of play-by-play data.
+    game_files = []
+    for file in os.listdir(folder):
+        if file.endswith(".html"):
+            opponent = file[file.find('-')+1:file.find('.html')]
+            if opponent in opponents:
+                game_files.append(file)
+    return game_files
+
 
 # MAIN SCRIPT BODY  
 if __name__ == "__main__":
@@ -165,18 +176,10 @@ if __name__ == "__main__":
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
     play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
     team = team_mappings[folder] # Team that the analysis will focus on
-    module = "sequence_dump"
-    game_files = []
+    module = "sequence_count"
+    game_files = get_game_files(folder, opponents)
     games = []
     teams = {} # List of teams encounters and the possession count of each
-
-    # In the specified folder, get all of the .html game_files of interest.
-    # Each one represents a game of play-by-play data.
-    for file in os.listdir(folder):
-        if file.endswith(".html"):
-            opponent = file[file.find('-')+1:file.find('.html')]
-            if opponent in opponents:
-                game_files.append(file)
 
     # Loop through each game and create our internal play-by-play structure
     for game in game_files:
@@ -244,15 +247,17 @@ if __name__ == "__main__":
 
     # Run whatever analysis you'd like on the data
     stat_module = import_module(module)
-    st.write(stat_module.run_analytics(games, team, [play_type]))
+    play_type_breakdown = stat_module.run_analytics(games, team, [play_type])
+    play_type_df = pd.DataFrame.from_dict(play_type_breakdown, orient='index')
+    st.write(play_type_df)
 
     # For verification/sanity-checking purposes, dump all the collected data
-    if print_err:
-        for game in games:
-            print()
-            print("New Game:")
-            for poss in game:
-                print("{} {} ({})".format(poss["team"], poss["duration"], poss["time"]))
-                for play in poss["plays"]:
-                    print("   ", play)
-                print()
+    # if print_err:
+    #     for game in games:
+    #         print()
+    #         print("New Game:")
+    #         for poss in game:
+    #             print("{} {} ({})".format(poss["team"], poss["duration"], poss["time"]))
+    #             for play in poss["plays"]:
+    #                 print("   ", play)
+    #             print()

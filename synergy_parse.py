@@ -223,7 +223,7 @@ for game in game_files:
     possessions = []
 
 # The team with the highest possession count is the focus of the analysis
-team = max(teams.items(), key=operator.itemgetter(1))[0]
+# team = max(teams.items(), key=operator.itemgetter(1))[0]
 print(teams)
 
 # DONE WITH DATA PARSING AND CLEANING

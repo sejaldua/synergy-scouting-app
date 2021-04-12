@@ -6,12 +6,10 @@ import operator
 # team stats is big dictionary - for each player on amherst, they have a player dictionary within player dicitonary 
 
 #noah and sook-hee - team breakdown, player info
-#sejal doing oponents - step that lets user select subset of opponents, in run analytics what do we need to do to only focus on those games
+#sejal doing opponents - step that lets user select subset of opponents, in run analytics what do we need to do to only focus on those games
 
-def run_analytics(games, team):
-    sequence = ["Spot-Up"]
+def run_analytics(games, team, sequence):
     count = 0
-    
     play_dict = {}
     for game in games:
         for poss in game:
@@ -88,6 +86,7 @@ def run_analytics(games, team):
     # split on multiple spot ups/sequence at 0
     print(" > ".join(sequence))
     print("Total: {}".format(count))
+    return all_tally_dicts
                     
         
                             
