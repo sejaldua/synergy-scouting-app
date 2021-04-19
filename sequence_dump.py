@@ -3,9 +3,9 @@ import streamlit as st
 
 
 def run_analytics(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Hand Off", "Offensive Rebounds",\
-        "Off Screen", "Isolation", "P&R Roll Man", "Miscellaneous"]
-    sequences=["ISO"]
+    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
+    sequences = ["Post-Up"]
+        
     full_seq = True
     output = []
     plays_dict = {}
@@ -14,10 +14,8 @@ def run_analytics(games, team):
             for poss in game:
                 if poss["team"] == team:
                     plays = poss["plays"]
-                    print("plays are", plays)
-                    
-                    for index in range(0, len(plays)):
-                        print(plays[index])
+                    for index in range(len(plays)):
+                        player = plays[0]
                         match = True
                         # index+1 is the play type, index is just the player
                         if plays[index+1] != seq:
@@ -41,6 +39,6 @@ def run_analytics(games, team):
                             break
                             
         plays_dict[seq] = output
-    # print(plays_dict)
-    print(plays_dict["Cut"])
+    print(plays_dict)
+    # print(plays_dict["Cut"])
     return plays_dict

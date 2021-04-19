@@ -154,7 +154,7 @@ game_files = []
 games = []
 teams = {} # List of teams encounters and the possession count of each
 team = "AMH" # Team that the analysis will focus on
-opponents = ["Williams", "Bowdoin", "Colby"]
+opponents = ["Williams", "Middlebury", "Wesleyan"]
 
 # In the specified folder, get all of the .html game_files of interest.
 # Each one represents a game of play-by-play data.
@@ -163,6 +163,8 @@ for file in os.listdir(folder):
         opponent = file[file.find('-')+1:file.find('.html')]
         if opponent in opponents:
             game_files.append(file)
+
+print(game_files)
 
 # Loop through each game and create our internal play-by-play structure
 for game in game_files:
