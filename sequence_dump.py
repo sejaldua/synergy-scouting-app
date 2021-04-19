@@ -2,9 +2,59 @@ import operator
 import streamlit as st
 
 
+def tally_stats(plays):
+    tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
+    for play in plays:
+        seq = play.split(' > ')
+        seq = [info.strip() for info in seq]
+        for event in seq:
+            if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
+                tallies['attempts'] += 1
+            if event == 'Miss 3 Pts':
+                tallies['3PT attempts'] += 1
+            if event == 'Make 2 Pts' or event == 'Make 3 Pts':
+                tallies['makes'] += 1
+                tallies['attempts'] += 1
+                if event == 'Make 2 Pts':
+                    tallies['points'] += 2
+                elif event == 'Make 3 Pts':
+                    tallies['points'] += 3
+                    tallies['3PT makes'] += 1
+                    tallies['3PT attempts'] += 1
+            if event == 'Guarded':
+                tallies['guarded'] += 1
+            if event == 'Open':
+                tallies['open'] += 1
+            if event == 'Turnover':
+                tallies['turnovers'] += 1
+            if event == 'Free Throw':
+                tallies['FT attempts'] += 1
+            if event == 'Made':
+                tallies['points'] += 1
+                tallies['FT makes'] += 1
+        tallies['possessions'] += 1
+    print(tallies)
+    return tallies
+
+def compute_stats(tallies, game_count):
+    stats = {}
+    stats['poss/game'] = tallies['possessions'] / game_count
+    stats['points'] = tallies['points'] / game_count
+    stats['PPP'] = tallies['points'] / tallies['possessions']
+    stats['FGM'] = tallies['makes'] / game_count
+    stats['FGA'] = tallies['attempts'] / game_count
+    stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100
+    # stats['aFG%'] = ((stats['FGM'] + 1.5 * stats['points']) / stats['FGA']) * 100
+    stats['%TO'] = (tallies['turnovers'] / tallies['possessions']) * 100
+    stats['%FT'] = (tallies['FT attempts'] / tallies['FT makes']) * 100
+    print(stats)
+    return stats
+
+
 def run_analytics(games, team):
+    print(len(games))
     sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-    sequences = ["Post-Up"]
+    sequences = ["Spot-Up"]
         
     full_seq = True
     output = []
@@ -40,5 +90,6 @@ def run_analytics(games, team):
                             
         plays_dict[seq] = output
     print(plays_dict)
-    # print(plays_dict["Cut"])
+    tallies = tally_stats(plays_dict['Spot-Up'])
+    compute_stats(tallies, len(games))
     return plays_dict
