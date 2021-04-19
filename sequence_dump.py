@@ -54,7 +54,7 @@ def compute_stats(tallies, game_count):
 def run_analytics(games, team):
     print(len(games))
     sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-    sequences = ["Spot-Up"]
+    sequences = ["Post-Up", "Spot-Up"]
         
     full_seq = True
     output = []
@@ -90,6 +90,6 @@ def run_analytics(games, team):
                             
         plays_dict[seq] = output
     print(plays_dict)
-    tallies = tally_stats(plays_dict['Spot-Up'])
+    tallies = tally_stats(plays_dict['Post-Up'])
     compute_stats(tallies, len(games))
     return plays_dict
