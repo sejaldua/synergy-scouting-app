@@ -174,9 +174,9 @@ if __name__ == "__main__":
     folder = folder.lower()
     all_opponents = get_opponents(folder)
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
-    play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
+    st.markdown('### Play Type Breakdown')
     team = team_mappings[folder] # Team that the analysis will focus on
-    module = "sequence_count"
+    module = "sequence_dump"
     game_files = get_game_files(folder, opponents)
     games = []
     teams = {} # List of teams encounters and the possession count of each
@@ -247,9 +247,12 @@ if __name__ == "__main__":
 
     # Run whatever analysis you'd like on the data
     stat_module = import_module(module)
-    play_type_breakdown = stat_module.run_analytics(games, team, [play_type])
-    play_type_df = pd.DataFrame.from_dict(play_type_breakdown, orient='index')
+    play_type_df = stat_module.run_analytics(games, team)
+    # play_type_df = pd.DataFrame.from_dict(play_type_df, orient='index')
     st.write(play_type_df)
+
+
+    # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
 
     # For verification/sanity-checking purposes, dump all the collected data
     # if print_err:

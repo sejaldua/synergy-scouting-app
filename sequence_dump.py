@@ -101,7 +101,7 @@ def run_analytics(games, team):
         print(seq)
         tallies = tally_stats(plays_dict[seq])
         stat_dict[seq] = compute_stats(tallies, len(games))
-    df = pd.DataFrame.from_dict(stat_dict).T
+    df = pd.DataFrame.from_dict(stat_dict, orient='index')
 
     # take care of rounding
     for col in df.columns:
