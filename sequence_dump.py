@@ -44,7 +44,8 @@ def compute_stats(tallies, game_count):
     stats['FGM'] = tallies['makes'] / game_count
     stats['FGA'] = tallies['attempts'] / game_count
     stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100
-    # stats['aFG%'] = ((stats['FGM'] + 1.5 * stats['points']) / stats['FGA']) * 100
+    # https://thesaucereport.wordpress.com/2009/04/28/adjusted-field-goal-percentage/
+    stats['aFG%'] = ((stats['points'] - tallies['FT makes']) / (2 * stats['FGA'])) * 100
     stats['%TO'] = (tallies['turnovers'] / tallies['possessions']) * 100
     stats['%FT'] = (tallies['FT attempts'] / tallies['FT makes']) * 100
     print(stats)
