@@ -1,10 +1,16 @@
 import operator
 import streamlit as st
+import pandas as pd
 
+def round_nums(x):
+    if x == "N/A":
+        return x
+    return round(x, 2)
 
 def tally_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
     for play in plays:
+        # print(play)
         seq = play.split(' > ')
         seq = [info.strip() for info in seq]
         for event in seq:
@@ -43,24 +49,23 @@ def compute_stats(tallies, game_count):
     stats['PPP'] = tallies['points'] / tallies['possessions']
     stats['FGM'] = tallies['makes'] / game_count
     stats['FGA'] = tallies['attempts'] / game_count
-    stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100
+    stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100 if stats['FGA'] != 0 else "N/A"
     # https://thesaucereport.wordpress.com/2009/04/28/adjusted-field-goal-percentage/
-    stats['aFG%'] = ((stats['points'] - tallies['FT makes']) / (2 * stats['FGA'])) * 100
+    stats['aFG%'] = ((stats['points'] - stats['FGM']) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else "N/A"
     stats['%TO'] = (tallies['turnovers'] / tallies['possessions']) * 100
-    stats['%FT'] = (tallies['FT attempts'] / tallies['FT makes']) * 100
+    stats['%FT'] = (tallies['FT makes'] / tallies['FT attempts']) * 100 if tallies['FT attempts'] != 0 else "N/A"
     print(stats)
     return stats
 
 
 def run_analytics(games, team):
-    print(len(games))
     sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-    sequences = ["Post-Up", "Spot-Up"]
+    sequences = ["Post-Up", "Spot-Up", "ISO", "P&R Ball Handler", "Hand Off", "Cut", "Transition", "Off Screen"]
         
     full_seq = True
-    output = []
     plays_dict = {}
     for seq in sequences:
+        output = []
         for game in games:
             for poss in game:
                 if poss["team"] == team:
@@ -90,7 +95,14 @@ def run_analytics(games, team):
                             break
                             
         plays_dict[seq] = output
-    print(plays_dict)
-    tallies = tally_stats(plays_dict['Post-Up'])
-    compute_stats(tallies, len(games))
-    return plays_dict
+
+    stat_dict = {}
+    for seq in sequences:
+        print(seq)
+        tallies = tally_stats(plays_dict[seq])
+        stat_dict[seq] = compute_stats(tallies, len(games))
+    df = pd.DataFrame.from_dict(stat_dict).T
+    for col in df.columns:
+        df[col] = df[col].apply(lambda x: round_nums(x))
+    print(df)
+    return df
