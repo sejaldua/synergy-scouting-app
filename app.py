@@ -248,7 +248,6 @@ if __name__ == "__main__":
     # Run whatever analysis you'd like on the data
     stat_module = import_module(module)
     play_type_df = stat_module.run_analytics(games, team)
-    # play_type_df = pd.DataFrame.from_dict(play_type_df, orient='index')
     st.dataframe(play_type_df.style.format("{:.2f}"))
 
 
