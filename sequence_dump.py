@@ -1,5 +1,3 @@
-import operator
-import streamlit as st
 import pandas as pd
 
 def round_nums(x):
@@ -17,6 +15,7 @@ def tally_stats(plays):
                 # Counting repeats 
                 tallies['possessions'] += 1
                 play_str += " > " + poss
+            print(play_str)
             play = play_str
 
         seq = play.split(' > ')
@@ -69,10 +68,9 @@ def compute_stats(tallies, game_count):
 
 def run_analytics(games, team):
     sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off","Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
 
+    plays_dict = {seq: [] for seq in sequences}
     full_seq = True
-    plays_dict = {"Spot-Up": [], "Post-Up": [], "ISO": [], "P&R Ball Handler": [], "Hand Off": [], "Cut": [], "Transition": [], "Off Screen": [], "Offensive Rebounds": [], "P&R Roll Man": [], "Miscellaneous": []}
     for seq in sequences:
         output = []
         for game in games:
