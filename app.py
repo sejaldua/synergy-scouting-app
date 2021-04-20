@@ -255,11 +255,11 @@ if __name__ == "__main__":
 
     # For verification/sanity-checking purposes, dump all the collected data
     # if print_err:
-    #     for game in games:
-    #         print()
-    #         print("New Game:")
-    #         for poss in game:
-    #             print("{} {} ({})".format(poss["team"], poss["duration"], poss["time"]))
-    #             for play in poss["plays"]:
-    #                 print("   ", play)
-    #             print()
+        # for game in games:
+        #     print()
+        #     print("New Game:")
+        #     for poss in game:
+        #         print("{} {} ({})".format(poss["team"], poss["duration"], poss["time"]))
+        #         for play in poss["plays"]:
+        #             print("   ", play)
+        #         print()
