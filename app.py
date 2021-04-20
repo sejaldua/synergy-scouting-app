@@ -249,7 +249,7 @@ if __name__ == "__main__":
     stat_module = import_module(module)
     play_type_df = stat_module.run_analytics(games, team)
     # play_type_df = pd.DataFrame.from_dict(play_type_df, orient='index')
-    st.write(play_type_df)
+    st.dataframe(play_type_df.style.format("{:.2f}"))
 
 
     # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
