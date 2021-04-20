@@ -66,8 +66,9 @@ def compute_stats(tallies, game_count):
 
 
 def run_analytics(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebounds", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Off Screen", "ISO", "P&R Roll Man"]
+    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
+    # sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Off Screen", "ISO", "P&R Roll Man"]
+    # sequences =["Offensive Rebound"]
 
     plays_dict = {seq: [] for seq in sequences}
     full_seq = True
@@ -77,10 +78,10 @@ def run_analytics(games, team):
             for poss in game:
                 if poss["team"] == team:
                     plays = poss["plays"]
-                    
                     repeat_indices = []
                     repeat_output = ""
                     for idx, play in enumerate(plays):
+                        
                         if play in sequences and idx > 1:
                             repeat_indices.append(idx)
 
