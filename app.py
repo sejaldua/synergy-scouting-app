@@ -260,7 +260,8 @@ if __name__ == "__main__":
         df = stat_module.get_hierarchical_plays(games, team)
         fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
 
-        st.write(fig)
+        fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
+        st.plotly_chart(fig, use_container_width=True)
 
     # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
 
