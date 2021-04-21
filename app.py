@@ -176,86 +176,91 @@ if __name__ == "__main__":
     folder = folder.lower()
     all_opponents = get_opponents(folder)
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
-    st.markdown('### Play Type Breakdown')
-    team = team_mappings[folder] # Team that the analysis will focus on
-    module = "sequence_dump"
-    game_files = get_game_files(folder, opponents)
-    games = []
-    teams = {} # List of teams encounters and the possession count of each
 
-    # Loop through each game and create our internal play-by-play structure
-    for game in game_files:
-        if print_err:
-            print("Game: {}".format(game), file=sys.stderr)
-        filename = "{}/{}".format(folder, game)
-        with open(filename, 'r') as fp:
-            # Read in the raw html play-by-play site
-            playbyplay = fp.read()
-            
-            # Grab each row ("play") of the play-by-play using a regex
-            regex = r'<tr class="PlayByPlayRow.*?<\/tr>'
-            matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
-            
-            # Initialize parsing variables
-            parser = MyHTMLParser()
-            prev_team = ""
-            prev_period = 1
+    if st.sidebar.button('Run!'):
+        if opponents == []:
+            st.error("Please choose some opponents to include in the analysis.")
+            st.stop()
+        st.markdown('### Play Type Breakdown')
+        team = team_mappings[folder] # Team that the analysis will focus on
+        module = "sequence_dump"
+        game_files = get_game_files(folder, opponents)
+        games = []
+        teams = {} # List of teams encounters and the possession count of each
 
-            # Extract the data from each play
-            for matchNum, match in enumerate(matches, start=1):
-                tr_text = "{match}".format(match = match.group())
-                parser.feed(tr_text)
+        # Loop through each game and create our internal play-by-play structure
+        for game in game_files:
+            if print_err:
+                print("Game: {}".format(game), file=sys.stderr)
+            filename = "{}/{}".format(folder, game)
+            with open(filename, 'r') as fp:
+                # Read in the raw html play-by-play site
+                playbyplay = fp.read()
                 
-                # Only rows that contain an actual play get parsed
-                if keep_row:
-                    if len(raw_data) > 2:
-                        # Convert the possession text into structured data
-                        possession = makePossession(raw_data)
-                        
-                        # Add this possession to the appropriate team's possession count
-                        if possession["team"] in teams:
-                            teams[possession["team"]] = teams[possession["team"]] + 1
-                        else: teams[possession["team"]] = 1
-                        
-                        # If two adjacent possessions come from the same team in the same period,
-                        # merge them
-                        if possession["team"] == prev_team and possession["period"] == prev_period:
-                            mergePossession(possession)
-                        else: possessions.append(possession)
-                        
-                        # Update the team and period
-                        prev_team = possession["team"]
-                        prev_period = possession["period"]
-                    else: addPlay(raw_data[1])
+                # Grab each row ("play") of the play-by-play using a regex
+                regex = r'<tr class="PlayByPlayRow.*?<\/tr>'
+                matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
+                
+                # Initialize parsing variables
+                parser = MyHTMLParser()
+                prev_team = ""
+                prev_period = 1
+
+                # Extract the data from each play
+                for matchNum, match in enumerate(matches, start=1):
+                    tr_text = "{match}".format(match = match.group())
+                    parser.feed(tr_text)
                     
-                # Reset for the next row
-                keep_row = False
-                raw_data = []
-                parser.reset()
-        
-        
-        cleanPossessions()
-        addStats()
-        
-        # Add the list of possessions to the games array and reset for the next game
-        games.append(copy.deepcopy(possessions))
-        possessions = []
+                    # Only rows that contain an actual play get parsed
+                    if keep_row:
+                        if len(raw_data) > 2:
+                            # Convert the possession text into structured data
+                            possession = makePossession(raw_data)
+                            
+                            # Add this possession to the appropriate team's possession count
+                            if possession["team"] in teams:
+                                teams[possession["team"]] = teams[possession["team"]] + 1
+                            else: teams[possession["team"]] = 1
+                            
+                            # If two adjacent possessions come from the same team in the same period,
+                            # merge them
+                            if possession["team"] == prev_team and possession["period"] == prev_period:
+                                mergePossession(possession)
+                            else: possessions.append(possession)
+                            
+                            # Update the team and period
+                            prev_team = possession["team"]
+                            prev_period = possession["period"]
+                        else: addPlay(raw_data[1])
+                        
+                    # Reset for the next row
+                    keep_row = False
+                    raw_data = []
+                    parser.reset()
+            
+            
+            cleanPossessions()
+            addStats()
+            
+            # Add the list of possessions to the games array and reset for the next game
+            games.append(copy.deepcopy(possessions))
+            possessions = []
 
-    # The team with the highest possession count is the focus of the analysis
-    # team = max(teams.items(), key=operator.itemgetter(1))[0]
-    # st.write(teams)
+        # The team with the highest possession count is the focus of the analysis
+        # team = max(teams.items(), key=operator.itemgetter(1))[0]
+        # st.write(teams)
 
-    # DONE WITH DATA PARSING AND CLEANING
+        # DONE WITH DATA PARSING AND CLEANING
 
-    # Run whatever analysis you'd like on the data
-    stat_module = import_module(module)
-    play_type_df = stat_module.run_analytics(games, team)
-    st.dataframe(play_type_df.style.format("{:.2f}"))
+        # Run whatever analysis you'd like on the data
+        stat_module = import_module(module)
+        play_type_df = stat_module.run_analytics(games, team)
+        st.dataframe(play_type_df.style.format("{:.2f}"))
 
-    df = stat_module.get_hierarchical_plays(games, team)
-    fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
+        df = stat_module.get_hierarchical_plays(games, team)
+        fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
 
-    st.write(fig)
+        st.write(fig)
 
     # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
 
