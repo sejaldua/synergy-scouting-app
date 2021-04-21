@@ -141,3 +141,41 @@ def run_analytics(games, team):
         df[col] = df[col].apply(lambda x: round_nums(x))
     print(df)
     return df
+
+def get_hierarchical_plays(games, team):
+    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
+    output = []
+    full_seq = False
+    for seq in sequences:
+        for game in games:
+            for poss in game:
+                if poss["team"] == team:
+                    plays = poss["plays"]
+                    for index in range(len(plays)):
+                        player = plays[0]
+                        match = True
+                        
+                        # index+1 is the play type, index is just the player
+                        if plays[index+1] != seq:
+                            match = False
+                            break
+                        
+                        if match:
+                            flag = True
+                            play_seq = ""
+                            for match_index in range(1, len(plays)):
+                                if plays[match_index] in sequences and plays[match_index] != seq:
+                                    flag = False
+                                if plays[match_index] == seq:
+                                    flag = True
+                                if flag:
+                                    play_seq += "{} > ".format(plays[match_index])
+                                else:
+                                    continue
+                                
+                            # play_seq = play_seq[0:len(play_seq) - 2]
+                            output.append(play_seq.split(" > ")[:4])
+                            break
+    df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
+    print(df.head())
+    return df

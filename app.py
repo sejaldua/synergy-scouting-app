@@ -11,6 +11,8 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import plotly.graph_objects as go
+import plotly.express as px
+import numpy as np
 from pathlib import Path
 
 TEAMS_TO_SCOUT = ["amherst", "bates", "colby", "hamilton", "middlebury", "trinity"]
@@ -250,6 +252,10 @@ if __name__ == "__main__":
     play_type_df = stat_module.run_analytics(games, team)
     st.dataframe(play_type_df.style.format("{:.2f}"))
 
+    df = stat_module.get_hierarchical_plays(games, team)
+    fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
+
+    st.write(fig)
 
     # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
 
