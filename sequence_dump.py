@@ -38,15 +38,56 @@ def parse_play(play_list, tallies):
     tallies['possessions'] += 1
     return tallies
 
+def parse_player_only_play(play_list, tallies):
+    for event in play_list:
+        if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
+            tallies['attempts'] += 1
+        if event == 'Miss 3 Pts':
+            tallies['3PT attempts'] += 1
+        if event == 'Make 2 Pts' or event == 'Make 3 Pts':
+            tallies['makes'] += 1
+            tallies['attempts'] += 1
+            if event == 'Make 2 Pts':
+                tallies['points'] += 2
+            elif event == 'Make 3 Pts':
+                tallies['points'] += 3
+                tallies['3PT makes'] += 1
+                tallies['3PT attempts'] += 1
+        if event == 'Guarded':
+            tallies['guarded'] += 1
+        if event == 'Open':
+            tallies['open'] += 1
+        if event == 'Turnover':
+            tallies['turnovers'] += 1
+        if event == 'Free Throw':
+            tallies['FT attempts'] += 1
+        if event == 'Made':
+            tallies['points'] += 1
+            tallies['FT makes'] += 1
+    tallies['possessions'] += 1
+    return tallies
+
 def tally_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
-    
     for play in plays:
         if isinstance(play, list):
             for poss in play:
                 tallies = parse_play(poss, tallies)
         else:
             tallies = parse_play(play, tallies)
+    return tallies
+
+def tally_player_stats(plays):
+    tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
+    made_count = 0
+    for play in plays:
+        play = play.split(' > ')
+        play = [val.strip() for val in play]
+        for p in play:
+            if p == 'Make 2 Pts':
+                made_count += 1
+        tallies = parse_player_only_play(play, tallies)
+    print(made_count)
     return tallies
 
 def compute_stats(tallies, game_count):
@@ -68,7 +109,7 @@ def compute_stats(tallies, game_count):
 def run_analytics(games, team):
     sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
     # sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Off Screen", "ISO", "P&R Roll Man"]
-    # sequences =["Offensive Rebound"]
+    player_dict = {}
 
     plays_dict = {seq: [] for seq in sequences}
     full_seq = True
@@ -81,29 +122,37 @@ def run_analytics(games, team):
                     repeat_indices = []
                     repeat_output = ""
                     for idx, play in enumerate(plays):
-                        
                         if play in sequences and idx > 1:
                             repeat_indices.append(idx)
 
                     for idx, repeat in enumerate(repeat_indices):
+                        player = plays[repeat - 1]
+                        if player not in player_dict:
+                            player_dict[player] = []
+
                         if idx < len(repeat_indices) - 1:
-                            repeat_output = ""
-                            for r in range(repeat_indices[idx], repeat_indices[idx + 1]):
+                            repeat_output = plays[repeat-1] + " > "
+                            for r in range(repeat, repeat_indices[idx + 1]-1):
                                 repeat_output += "{} > ".format(plays[r])
-                                
                             repeat_output = repeat_output[0:len(repeat_output) - 2]
+                            player_dict[player].append(repeat_output)
                             plays_dict[plays[repeat]].append(repeat_output)
 
                         else:
-                            repeat_output = ""
+                            
+                            repeat_output = plays[repeat_indices[idx]-1]  + " > "
                             for r in range(repeat_indices[idx], len(plays)):
                                 repeat_output += "{} > ".format(plays[r])
                                 
                             repeat_output = repeat_output[0:len(repeat_output) - 2]
+                            player_dict[player].append(repeat_output)
                             plays_dict[plays[repeat]].append(repeat_output)
 
                     for index in range(len(plays)):
                         player = plays[0]
+                        if player not in player_dict:
+                            player_dict[player] = []
+
                         match = True
                         
                         # index+1 is the play type, index is just the player
@@ -116,66 +165,38 @@ def run_analytics(games, team):
                             if full_seq:
                                 for match_index in range(0, len(plays)):
                                     play_seq += "{} > ".format(plays[match_index])
-                                
                                 play_seq = play_seq[0:len(play_seq) - 2]
                             else:
                                 for match_index in range(index, len(plays)):
                                     play_seq += "{} > ".format(plays[match_index])
                                 
                                 play_seq = play_seq[0:len(play_seq) - 2]
-                            
                             output.append(play_seq)
                             break
 
+                        if not repeat_indices:
+                            player_dict[player].append(output)
+
         plays_dict[seq].append(output)      
-                   
     stat_dict = {}
     for seq in sequences:
-        print(seq)
         tallies = tally_stats(plays_dict[seq])
         stat_dict[seq] = compute_stats(tallies, len(games))
-    df = pd.DataFrame.from_dict(stat_dict, orient='index')
+    stat_df = pd.DataFrame.from_dict(stat_dict, orient='index')
 
     # take care of rounding
-    for col in df.columns:
-        df[col] = df[col].apply(lambda x: round_nums(x))
-    print(df)
-    return df
+    for col in stat_df.columns:
+        stat_df[col] = stat_df[col].apply(lambda x: round_nums(x))
 
-def get_hierarchical_plays(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-    output = []
-    full_seq = False
-    for seq in sequences:
-        for game in games:
-            for poss in game:
-                if poss["team"] == team:
-                    plays = poss["plays"]
-                    for index in range(len(plays)):
-                        player = plays[0]
-                        match = True
-                        
-                        # index+1 is the play type, index is just the player
-                        if plays[index+1] != seq:
-                            match = False
-                            break
-                        
-                        if match:
-                            flag = True
-                            play_seq = ""
-                            for match_index in range(1, len(plays)):
-                                if plays[match_index] in sequences and plays[match_index] != seq:
-                                    flag = False
-                                if plays[match_index] == seq:
-                                    flag = True
-                                if flag:
-                                    play_seq += "{} > ".format(plays[match_index])
-                                else:
-                                    continue
-                                
-                            # play_seq = play_seq[0:len(play_seq) - 2]
-                            output.append(play_seq.split(" > ")[:4])
-                            break
-    df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
-    print(df.head())
-    return df
+    player_stat_dict = {}
+    for player in player_dict.keys():
+        tallies = tally_player_stats(player_dict[player])
+        player_stat_dict[player] = compute_stats(tallies, len(games))
+    player_df = pd.DataFrame.from_dict(player_stat_dict, orient='index')
+
+    # take care of rounding
+    for col in player_df.columns:
+        player_df[col] = player_df[col].apply(lambda x: round_nums(x))
+
+    print(player_df)
+    return stat_df, player_df
