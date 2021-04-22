@@ -15,13 +15,14 @@ def run_analytics(games, team, sequence):
         for poss in game:
             if poss["team"] == team:
                 plays = poss["plays"]
+                # print(plays)
                 # split any plays that have sequence[0] multiple times to individual arrays
                 # example: ['Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts', '25 Fru Che', \
                 # 'Offensive Rebound', 'Short', 'Run Offense', '3 Devonn Allen', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts']
                 # should be split into two at each Spot-Up
                 repeat_indices = []
                 for idx, play in enumerate(plays):
-                    if play == sequence[0] and idx != 0:
+                    if play in sequence and idx != 0:
                         # need to split the play, record index for later
                         repeat_indices.append(idx)
 
