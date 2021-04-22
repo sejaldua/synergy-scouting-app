@@ -177,5 +177,5 @@ def get_hierarchical_plays(games, team):
                             output.append(play_seq.split(" > ")[:4])
                             break
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
-    print(df.head())
+    # print(df.head())
     return df

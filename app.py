@@ -263,6 +263,10 @@ if __name__ == "__main__":
         fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
+        # roster_img_module = import_module('roster_images')
+        # st.write(roster_img_module.get_headshots(team), unsafe_allow_html=True)
+
+
     # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)
 
     # For verification/sanity-checking purposes, dump all the collected data
