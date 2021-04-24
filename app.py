@@ -254,8 +254,9 @@ if __name__ == "__main__":
 
         # Run whatever analysis you'd like on the data
         stat_module = import_module(module)
-        play_type_df = stat_module.run_analytics(games, team)
+        play_type_df, player_stats = stat_module.run_analytics(games, team)
         st.dataframe(play_type_df.style.format("{:.2f}"))
+        
 
         df = stat_module.get_hierarchical_plays(games, team)
         fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
@@ -263,6 +264,7 @@ if __name__ == "__main__":
         fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
+        st.dataframe(player_stats.style.format("{:.2f}"))
         # roster_img_module = import_module('roster_images')
         # st.write(roster_img_module.get_headshots(team), unsafe_allow_html=True)
 

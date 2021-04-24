@@ -185,8 +185,8 @@ def run_analytics(games, team):
 
     player_stats, player_play_dict = get_player_stats(games, team)
     print(player_stats)
-    print("\n\n Return player_play_dict for following\n Player & play dict for Fru Che",player_play_dict['25 Fru Che']['Spot-Up'])
-    return stat_df
+    # print("\n\n Return player_play_dict for following\n Player & play dict for Fru Che",player_play_dict['25 Fru Che']['Spot-Up'])
+    return stat_df, player_stats
 
 def get_player_stats(games, team):
     sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
