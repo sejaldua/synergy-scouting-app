@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from importlib import import_module
 import re
 import operator
-import copy 
+import copy
+from roster_images import get_player_headshots
 import sys
 import os
 import streamlit as st
@@ -260,9 +261,10 @@ if __name__ == "__main__":
             fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
             st.plotly_chart(fig, use_container_width=True)
         elif page == "Player":
-            st.dataframe(player_stats.style.format("{:.2f}"))
-        # roster_img_module = import_module('roster_images')
-        # st.write(roster_img_module.get_headshots(team), unsafe_allow_html=True)
+            # player_stats_df = player_stats.style.format("{:.2f}")
+            roster_img_module = import_module('roster_images')
+            st.write(roster_img_module.get_player_headshots(team, player_stats), unsafe_allow_html=True)
+        
 
 
     # play_type = st.selectbox('Choose a play type to investigate', PLAY_TYPES)

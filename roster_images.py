@@ -21,7 +21,7 @@ def get_headshots(team):
                 'MID': ('https://athletics.middlebury.edu', 
                             '/sports/mbball/roster/2019-20')}
 
-    print("GETTING HEADSHOTS", team)
+    # print("GETTING HEADSHOTS", team)
     site = teams_dict[team][0]
     ext = teams_dict[team][1]
     url = site + ext
@@ -34,10 +34,12 @@ def get_headshots(team):
     # dict: {alt: data-src}  
     urls = [site + img['data-src'] for img in img_tags]
     names = [img['alt'] for img in img_tags]
-    img_dict = {names[i]:urls[i] for i in range(len(names))}
+    img_dict = {names[i].lower():urls[i] for i in range(len(names))}
+    return img_dict
 
-    player_df = pd.DataFrame.from_dict(img_dict, orient='index', columns=['headshot'])
-    player_df['headshot'] = player_df['headshot'].apply(lambda x: path_to_image_html(x))
-
-    # Rendering the dataframe as HTML table
-    return player_df.to_html(escape=False)
+def get_player_headshots(team, df):
+    img_dict = get_headshots(team)
+    images = [path_to_image_html(img_dict[" ".join(x.split()[1:]).lower()]) for x in list(df.index)]
+    print(images)
+    df.insert(0, 'headshots', images)
+    return df.to_html(escape=False)
