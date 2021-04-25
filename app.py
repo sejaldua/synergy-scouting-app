@@ -174,8 +174,11 @@ if __name__ == "__main__":
     st.title('Synergy Scouting App  :basketball::bar_chart:')
     page = st.sidebar.selectbox("Choose a page", ["Homepage", "Team Analysis", "Player Analysis"])
     if page == "Homepage":
-        st.markdown('## App Description')
+        st.markdown('## About the App')
+        st.write('We created this app to allow coaches to scout opponent teams with isolated data, which is different from and more useful than the current scouting platform. Coaches can select a team to scout, and then select teams that the scouted team has played to see a comprehensive breakdown of that team’s success in different play types. The coaches can also see breakdown of play types by player, and view helpful data visualizations to guide their decisions.')
+        st.markdown('---')
         st.markdown('### Statistics Glossary')
+        st.markdown('---')
         st.markdown('### Play Type Glossary')
     else:
         folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])

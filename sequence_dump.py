@@ -116,6 +116,7 @@ def run_analytics(games, team):
         output = []
         for game in games:
             for poss in game:
+                print(poss)
                 if poss["team"] == team:
                     plays = poss["plays"]
 
