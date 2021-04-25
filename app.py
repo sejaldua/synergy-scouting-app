@@ -168,6 +168,8 @@ def get_game_files(folder, opponents):
                 game_files.append(file)
     return game_files
 
+def read_markdown_file(markdown_file):
+    return Path(markdown_file).read_text()
 
 # MAIN SCRIPT BODY  
 if __name__ == "__main__":
@@ -180,6 +182,8 @@ if __name__ == "__main__":
         st.markdown('### Statistics Glossary')
         st.markdown('---')
         st.markdown('### Play Type Glossary')
+        play_type_markdown = read_markdown_file("glossary.md")
+        st.markdown(play_type_markdown, unsafe_allow_html=True)
     else:
         folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
         folder = folder.lower()
