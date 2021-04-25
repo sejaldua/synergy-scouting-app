@@ -57,5 +57,5 @@ def get_player_headshots(team, df):
     print(img_dict.keys())
     images = [path_to_image_html(img_dict, " ".join(x.split()[1:]).lower()) for x in list(df.index)]
     # print(images)
-    df.insert(0, 'headshots', images)
+    df.insert(0, 'headshot', images)
     return df.to_html(escape=False)
