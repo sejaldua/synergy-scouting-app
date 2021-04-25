@@ -2,8 +2,23 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from Levenshtein import distance as levenshtein_distance
 
-def path_to_image_html(path):
+def get_closest_levenshtein(img_dict, player):
+    dists = [levenshtein_distance(player, p) for p in img_dict.keys()]
+    # print(dists)
+    idx = dists.index(min(dists))
+    if idx == -1:
+        return ""
+    return list(img_dict.values())[idx]
+
+def path_to_image_html(img_dict, player):
+    try:
+        path = img_dict[player]
+    except:
+        path = get_closest_levenshtein(img_dict, player)
+        if path == "":
+            return '<img src="''" width="60" >'
     return '<img src="'+ path + '" width="60" >'
 
 def get_headshots(team):
@@ -39,7 +54,8 @@ def get_headshots(team):
 
 def get_player_headshots(team, df):
     img_dict = get_headshots(team)
-    images = [path_to_image_html(img_dict[" ".join(x.split()[1:]).lower()]) for x in list(df.index)]
+    print(img_dict.keys())
+    images = [path_to_image_html(img_dict, " ".join(x.split()[1:]).lower()) for x in list(df.index)]
     # print(images)
     df.insert(0, 'headshots', images)
     return df.to_html(escape=False)
