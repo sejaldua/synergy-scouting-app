@@ -176,12 +176,11 @@ if __name__ == "__main__":
     folder = folder.lower()
     all_opponents = get_opponents(folder)
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
-
+    page = st.sidebar.selectbox("Select which type of analysis to view", ["Team", "Player"])
     if st.sidebar.button('Run!'):
         if opponents == []:
             st.error("Please choose some opponents to include in the analysis.")
             st.stop()
-        st.markdown('### Play Type Breakdown')
         team = team_mappings[folder] # Team that the analysis will focus on
         module = "sequence_dump"
         game_files = get_game_files(folder, opponents)
@@ -246,25 +245,22 @@ if __name__ == "__main__":
             games.append(copy.deepcopy(possessions))
             possessions = []
 
-        # The team with the highest possession count is the focus of the analysis
-        # team = max(teams.items(), key=operator.itemgetter(1))[0]
-        # st.write(teams)
-
         # DONE WITH DATA PARSING AND CLEANING
 
         # Run whatever analysis you'd like on the data
         stat_module = import_module(module)
         play_type_df, player_stats = stat_module.run_analytics(games, team)
-        st.dataframe(play_type_df.style.format("{:.2f}"))
-        
 
-        df = stat_module.get_hierarchical_plays(games, team)
-        fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
+        if page == "Team":
+            st.markdown('### Play Type Breakdown')
+            st.dataframe(play_type_df.style.format("{:.2f}"))
+            df = stat_module.get_hierarchical_plays(games, team)
+            fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
 
-        fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.dataframe(player_stats.style.format("{:.2f}"))
+            fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
+            st.plotly_chart(fig, use_container_width=True)
+        elif page == "Player":
+            st.dataframe(player_stats.style.format("{:.2f}"))
         # roster_img_module = import_module('roster_images')
         # st.write(roster_img_module.get_headshots(team), unsafe_allow_html=True)
 
