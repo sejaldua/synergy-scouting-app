@@ -254,7 +254,8 @@ if __name__ == "__main__":
 
         if page == "Homepage":
             st.markdown('## App Description')
-            st.markdown('### Glossary')
+            st.markdown('### Statistics Glossary')
+            st.markdown('### Play Type Glossary')
         elif page == "Team":
             st.markdown('### Play Type Breakdown')
             st.dataframe(play_type_df.style.format("{:.2f}"))
