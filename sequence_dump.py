@@ -93,14 +93,14 @@ def tally_player_play_stats(plays):
 
 def compute_stats(tallies, game_count):
     stats = {}
-    stats['Plays/game'] = tallies['possessions'] / game_count
+    stats['Plays/Game'] = tallies['possessions'] / game_count
     stats['Points'] = tallies['points'] / game_count
     stats['PPP'] = tallies['points'] / tallies['possessions'] if tallies['possessions'] != 0 else np.nan
     stats['FGM'] = tallies['makes'] / game_count
     stats['FGA'] = tallies['attempts'] / game_count
     stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100 if stats['FGA'] != 0 else np.nan
     # https://thesaucereport.wordpress.com/2009/04/28/adjusted-field-goal-percentage/
-    stats['aFG%'] = ((stats['points'] - stats['FGM']) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
+    stats['aFG%'] = ((stats['Points'] - stats['FGM']) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
     stats['%TO'] = (tallies['turnovers'] / tallies['possessions']) * 100 if tallies['possessions'] != 0 else np.nan
     stats['%FT'] = (tallies['FT makes'] / tallies['FT attempts']) * 100 if tallies['FT attempts'] != 0 else np.nan
     print(stats)
