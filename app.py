@@ -267,9 +267,49 @@ if __name__ == "__main__":
 
                 fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
                 st.plotly_chart(fig, use_container_width=True)
+
+                ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
+                plays_list = play_type_df.index.values
+                ppp_and_poss_df['Play'] = plays_list
+
+                fig = px.scatter(ppp_and_poss_df,
+                    x=ppp_and_poss_df["Plays/Game"],
+                    y=ppp_and_poss_df["PPP"],
+                    hover_name=ppp_and_poss_df["Play"],
+                    hover_data=["PPP"],
+                    color="Play"
+                )
+
+                fig.update_layout(
+                    xaxis_title="Plays/Game",
+                    yaxis_title="Points per Possession",
+                )
+
+                st.write(fig)
+
             elif page == "Player Analysis":
                 # player_stats_df = player_stats.style.format("{:.2f}")
                 roster_img_module = import_module('roster_images')
                 st.write(roster_img_module.get_player_headshots(team, player_stats), unsafe_allow_html=True)
+
+                # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
+                # plays_list = play_type_df.index.values
+                # ppp_and_poss_df['Play'] = plays_list
+
+                # fig = px.scatter(ppp_and_poss_df,
+                #     x=ppp_and_poss_df["Plays/Game"],
+                #     y=ppp_and_poss_df["PPP"],
+                #     hover_name=ppp_and_poss_df["Play"],
+                #     hover_data=["PPP"],
+                #     color="Play"
+                # )
+
+                # fig.update_layout(
+                #     xaxis_title="Plays/Game",
+                #     yaxis_title="Points per Possession",
+                # )
+
+                # st.write(fig)
+
         
 
