@@ -1,4 +1,7 @@
 [theme]
 
-# Color used for almost all text
-textColor = '#f0f0f0'
+primaryColor="#f63366"
+backgroundColor="#0e1117"
+secondaryBackgroundColor="#31333F"
+textColor="#fafafa"
+font="sans serif"
