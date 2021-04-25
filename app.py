@@ -177,7 +177,7 @@ if __name__ == "__main__":
     folder = folder.lower()
     all_opponents = get_opponents(folder)
     opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
-    page = st.sidebar.selectbox("Select which type of analysis to view", ["Team", "Player"])
+    page = st.sidebar.selectbox("Choose a page", ["Homepage", "Team Analysis", "Player Analysis"])
     if st.sidebar.button('Run!'):
         if opponents == []:
             st.error("Please choose some opponents to include in the analysis.")
@@ -252,7 +252,10 @@ if __name__ == "__main__":
         stat_module = import_module(module)
         play_type_df, player_stats = stat_module.run_analytics(games, team)
 
-        if page == "Team":
+        if page == "Homepage":
+            st.markdown('## App Description')
+            st.markdown('### Glossary')
+        elif page == "Team":
             st.markdown('### Play Type Breakdown')
             st.dataframe(play_type_df.style.format("{:.2f}"))
             df = stat_module.get_hierarchical_plays(games, team)
