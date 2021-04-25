@@ -93,7 +93,7 @@ def tally_player_play_stats(plays):
 
 def compute_stats(tallies, game_count):
     stats = {}
-    stats['poss/game'] = tallies['possessions'] / game_count
+    stats['plays/game'] = tallies['possessions'] / game_count
     stats['points'] = tallies['points'] / game_count
     stats['PPP'] = tallies['points'] / tallies['possessions'] if tallies['possessions'] != 0 else np.nan
     stats['FGM'] = tallies['makes'] / game_count
