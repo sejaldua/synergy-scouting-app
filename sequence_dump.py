@@ -85,12 +85,6 @@ def tally_player_stats(plays):
             tallies = parse_player_only_play(play, tallies)
     return tallies
 
-def tally_player_play_stats(plays):
-    tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
-    if isinstance(plays, list): 
-        tallies = parse_player_only_play(plays, tallies)
-    return tallies
-
 def compute_stats(tallies, game_count):
     stats = {}
     stats['Plays/Game'] = tallies['possessions'] / game_count
@@ -153,7 +147,6 @@ def run_analytics(games, team):
                             # Store the subplays under the corresponding play type
                             repeat_output = repeat_output[0:len(repeat_output) - 2]
                             plays_dict[plays[repeat]].append(repeat_output)
-
                     for index in range(len(plays)):
                         player = plays[0]
 
@@ -190,7 +183,7 @@ def run_analytics(games, team):
     return stat_df, player_stats
 
 def get_player_stats(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
+    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous", "Free Throw"] 
     player_dict = {}
     full_seq = True
     for game in games:
@@ -227,6 +220,7 @@ def get_player_stats(games, team):
                             player_dict[subplays[0]].append(subplays)
 
     player_stat_dict = {}
+    print(player_dict)
     for player in player_dict.keys():
         tallies = tally_player_stats(player_dict[player])
         player_stat_dict[player] = compute_stats(tallies, len(games))
