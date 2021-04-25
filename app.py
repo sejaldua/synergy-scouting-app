@@ -256,7 +256,7 @@ if __name__ == "__main__":
             st.markdown('## App Description')
             st.markdown('### Statistics Glossary')
             st.markdown('### Play Type Glossary')
-        elif page == "Team":
+        elif page == "Team Analysis":
             st.markdown('### Play Type Breakdown')
             st.dataframe(play_type_df.style.format("{:.2f}"))
             df = stat_module.get_hierarchical_plays(games, team)
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 
             fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
             st.plotly_chart(fig, use_container_width=True)
-        elif page == "Player":
+        elif page == "Player Analysis":
             # player_stats_df = player_stats.style.format("{:.2f}")
             roster_img_module = import_module('roster_images')
             st.write(roster_img_module.get_player_headshots(team, player_stats), unsafe_allow_html=True)
