@@ -5,7 +5,7 @@ from importlib import import_module
 import re
 import operator
 import copy
-from roster_images import get_player_headshots
+from MODULES.roster_images import get_player_headshots
 import sys
 import os
 import streamlit as st
@@ -183,7 +183,7 @@ if __name__ == "__main__":
             st.write('hehehe')
         st.markdown('---')
         with st.beta_expander('Play Type Glossary'):
-            play_type_markdown = read_markdown_file("glossary.md")
+            play_type_markdown = read_markdown_file("MARKDOWN/play_glossary.md")
             st.markdown(play_type_markdown, unsafe_allow_html=True)
             st.markdown("<small><i>Reference: <a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></i></small>", unsafe_allow_html=True)
     else:
@@ -196,7 +196,7 @@ if __name__ == "__main__":
                 st.error("Please choose some opponents to include in the analysis.")
                 st.stop()
             team = team_mappings[folder] # Team that the analysis will focus on
-            module = "sequence_dump"
+            module = "MODULES.sequence_dump"
             game_files = get_game_files(folder, opponents)
             games = []
             teams = {} # List of teams encounters and the possession count of each
@@ -295,7 +295,7 @@ if __name__ == "__main__":
 
             elif page == "Player Analysis":
                 # player_stats_df = player_stats.style.format("{:.2f}")
-                roster_img_module = import_module('roster_images')
+                roster_img_module = import_module('MODULES.roster_images')
                 st.write(roster_img_module.get_player_headshots(team, player_stats), unsafe_allow_html=True)
 
                 # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
