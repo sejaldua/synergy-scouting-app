@@ -155,13 +155,13 @@ def addStats():
         prev_time = time
         
 def get_opponents(folder):
-    return [f[f.find('-')+1:f.find('.html')] for f in os.listdir(folder) if f.endswith(".html")]
+    return [f[f.find('-')+1:f.find('.html')] for f in os.listdir("DATA/" + folder) if f.endswith(".html")]
 
 def get_game_files(folder, opponents):
     # In the specified folder, get all of the .html game_files of interest.
     # Each one represents a game of play-by-play data.
     game_files = []
-    for file in os.listdir(folder):
+    for file in os.listdir("DATA/" + folder):
         if file.endswith(".html"):
             opponent = file[file.find('-')+1:file.find('.html')]
             if opponent in opponents:
@@ -179,9 +179,10 @@ if __name__ == "__main__":
         st.markdown('## About the App')
         st.write('We created this app to allow coaches to scout opponent teams with isolated data, which is different from and more useful than the current scouting platform. Coaches can select a team to scout, and then select teams that the scouted team has played to see a comprehensive breakdown of that team’s success in different play types. The coaches can also see breakdown of play types by player, and view helpful data visualizations to guide their decision-making process.')
         st.markdown('---')
+        st.markdown('## Terminology')
         with st.beta_expander('Statistics Glossary'):
-            st.write('hehehe')
-        st.markdown('---')
+            stats_markdown = read_markdown_file("MARKDOWN/stats_glossary.md")
+            st.markdown(stats_markdown, unsafe_allow_html=True)
         with st.beta_expander('Play Type Glossary'):
             play_type_markdown = read_markdown_file("MARKDOWN/play_glossary.md")
             st.markdown(play_type_markdown, unsafe_allow_html=True)
@@ -205,7 +206,7 @@ if __name__ == "__main__":
             for game in game_files:
                 if print_err:
                     print("Game: {}".format(game), file=sys.stderr)
-                filename = "{}/{}".format(folder, game)
+                filename = "DATA/{}/{}".format(folder, game)
                 with open(filename, 'r') as fp:
                     # Read in the raw html play-by-play site
                     playbyplay = fp.read()
