@@ -326,5 +326,17 @@ if __name__ == "__main__":
 
                 # st.write(fig)
 
-        
-
+    hide_footer_style = """
+    <style>
+    footer {visibility: hidden;}   
+    footer:after {
+            content:'Authored by Sejal Dua, Sook-Hee Evans, and Noah Zhang | Tufts University | Spring 2021'; 
+            visibility: visible;
+            display: block;
+            position: relative;
+            #background-color: red;
+            padding: 5px;
+            top: 2px;
+        } 
+    """
+    st.markdown(hide_footer_style, unsafe_allow_html=True)
