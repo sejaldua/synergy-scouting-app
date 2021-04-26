@@ -1,0 +1,1 @@
+Field goals attempted. This statistic includes 2PT and 3PT makes and misses.

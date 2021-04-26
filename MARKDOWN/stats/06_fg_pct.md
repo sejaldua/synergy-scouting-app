@@ -1,0 +1,1 @@
+Field goal percentage. Formula: $\frac{\text{Field Goals Made}}{\text{Field Goals Made} + \text{Field Goals Attempted}} * 100$

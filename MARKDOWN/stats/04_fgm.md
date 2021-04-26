@@ -1,0 +1,1 @@
+Field goals made. This statistic includes both 2PT and 3PT baskets.
