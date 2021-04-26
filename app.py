@@ -181,12 +181,12 @@ if __name__ == "__main__":
         st.markdown('---')
         st.markdown("### Statistics Glossary")
         glossary_stats = ["Plays/Game", "Points", "PPP", "FGM", "FGA", "FG%", "aFG%", "TO%", "FT%",]
-        st.markdown('---')
         for i, play in enumerate(glossary_stats):
             with st.beta_expander(play):
                 for f in os.listdir("MARKDOWN/stats/"):
                     if f.startswith('%02d' % (i+1)):
                         st.markdown(read_markdown_file("MARKDOWN/stats/" + f), unsafe_allow_html=True)
+        st.markdown('---')
         st.markdown('### Play Type Glossary')
         glossary_plays = ['Pick-and-roll ball-handler', 'Pick-and-roll roll man', 'Transition', 'Off-screen', 'Spot-up', 'Isolation', 'Hand-offs', 'Cuts', 'Putbacks', 'Post-up', 'Miscellaneous']
         for i, play in enumerate(glossary_plays):
@@ -194,7 +194,7 @@ if __name__ == "__main__":
                 for f in os.listdir("MARKDOWN/play_types/"):
                     if f.startswith('%02d' % (i+1)):
                         st.markdown(read_markdown_file("MARKDOWN/play_types/" + f), unsafe_allow_html=True)
-        st.markdown("<small><i>Reference: <a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></i></small>", unsafe_allow_html=True)
+        st.markdown("<small><i>Reference: </i><a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></small>", unsafe_allow_html=True)
     else:
         folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
         folder = folder.lower()

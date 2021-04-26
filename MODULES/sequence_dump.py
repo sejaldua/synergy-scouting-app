@@ -70,6 +70,7 @@ def parse_player_only_play(play_list, tallies):
 def tally_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
     for play in plays:
+        print(play)
         if isinstance(play, list):
             for poss in play:
                 tallies = parse_play(poss, tallies)
@@ -94,7 +95,7 @@ def compute_stats(tallies, game_count):
     stats['FGA'] = tallies['attempts'] / game_count
     stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100 if stats['FGA'] != 0 else np.nan
     # https://thesaucereport.wordpress.com/2009/04/28/adjusted-field-goal-percentage/
-    stats['aFG%'] = ((stats['Points'] - stats['FGM']) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
+    stats['aFG%'] = ((stats['Points'] - tallies['FT makes']) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
     stats['TO%'] = (tallies['turnovers'] / tallies['possessions']) * 100 if tallies['possessions'] != 0 else np.nan
     stats['FT%'] = (tallies['FT makes'] / tallies['FT attempts']) * 100 if tallies['FT attempts'] != 0 else np.nan
     print(stats)
