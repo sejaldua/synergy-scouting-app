@@ -180,10 +180,13 @@ if __name__ == "__main__":
         st.write('We created this app to allow coaches to scout opponent teams with isolated data, which is different from and more useful than the current scouting platform. Coaches can select a team to scout, and then select teams that the scouted team has played to see a comprehensive breakdown of that team’s success in different play types. The coaches can also see breakdown of play types by player, and view helpful data visualizations to guide their decision-making process.')
         st.markdown('---')
         st.markdown("### Statistics Glossary")
+        glossary_stats = ["Plays/Game", "Points", "PPP", "FGM", "FGA", "FG%", "aFG%", "TO%", "FT%",]
         st.markdown('---')
-        # with st.beta_expander('Statistics Glossary'):
-        #     stats_markdown = read_markdown_file("MARKDOWN/stats_glossary.md")
-        #     st.markdown(stats_markdown, unsafe_allow_html=True)
+        for i, play in enumerate(glossary_stats):
+            with st.beta_expander(play):
+                for f in os.listdir("MARKDOWN/stats/"):
+                    if f.startswith('%02d' % (i+1)):
+                        st.markdown(read_markdown_file("MARKDOWN/stats/" + f), unsafe_allow_html=True)
         st.markdown('### Play Type Glossary')
         glossary_plays = ['Pick-and-roll ball-handler', 'Pick-and-roll roll man', 'Transition', 'Off-screen', 'Spot-up', 'Isolation', 'Hand-offs', 'Cuts', 'Putbacks', 'Post-up', 'Miscellaneous']
         for i, play in enumerate(glossary_plays):
