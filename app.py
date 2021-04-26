@@ -179,11 +179,13 @@ if __name__ == "__main__":
         st.markdown('## About the App')
         st.write('We created this app to allow coaches to scout opponent teams with isolated data, which is different from and more useful than the current scouting platform. Coaches can select a team to scout, and then select teams that the scouted team has played to see a comprehensive breakdown of that team’s success in different play types. The coaches can also see breakdown of play types by player, and view helpful data visualizations to guide their decision-making process.')
         st.markdown('---')
-        st.markdown('### Statistics Glossary')
+        with st.beta_expander('Statistics Glossary'):
+            st.write('hehehe')
         st.markdown('---')
-        st.markdown('### Play Type Glossary')
-        play_type_markdown = read_markdown_file("glossary.md")
-        st.markdown(play_type_markdown, unsafe_allow_html=True)
+        with st.beta_expander('Play Type Glossary'):
+            play_type_markdown = read_markdown_file("glossary.md")
+            st.markdown(play_type_markdown, unsafe_allow_html=True)
+            st.markdown("<small><i>Reference: <a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></i></small>", unsafe_allow_html=True)
     else:
         folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
         folder = folder.lower()
