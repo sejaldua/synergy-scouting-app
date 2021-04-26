@@ -1,0 +1,1 @@
+Putbacks are the tip ins and quick shots after offensive rebounds. Very rarely this will also includes long rebounds that result in a quick shot. Due to most shots being right at the rim, these are generally very high PPP opportunities.

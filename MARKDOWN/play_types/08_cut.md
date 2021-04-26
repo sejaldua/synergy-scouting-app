@@ -1,0 +1,1 @@
+This category includes backdoor cuts and dump-offs as “basket cuts”. UCLA cuts and flex cuts also fall into this category as “screen cuts”. “Flash cuts” are the third subgroup within the cut category. These include times a player, without a screen, cuts out or toward the ball to receive it (like for a V cut).

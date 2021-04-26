@@ -1,0 +1,1 @@
+Handoffs are the dribble handoffs or flip/pitch plays we’ll see. They may come from the passer being stationary or the passer dribbling at the receiver and then handing the ball off. This is an action that isn’t used much by most teams. The Celtics are one of a few teams that run a lot of dribble handoffs.

@@ -1,0 +1,1 @@
+These are possessions finished by the ball-handler in the pick-and-roll. This includes pull-ups, floaters, and shots at the rim by that player. It also includes possessions where the bal- handler shoots before even dribbling off of the screen, as well as when he denies the ball screen and dribbles away from the pick.
