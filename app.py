@@ -177,8 +177,9 @@ if __name__ == "__main__":
     page = st.sidebar.selectbox("Choose a page", ["Homepage", "Team Analysis", "Player Analysis"])
     if page == "Homepage":
         st.markdown('## About the App')
-        st.write('We created this app to allow coaches to scout opponent teams with isolated data, which is different from and more useful than the current scouting platform. Coaches can select a team to scout, and then select teams that the scouted team has played to see a comprehensive breakdown of that team’s success in different play types. The coaches can also see breakdown of play types by player, and view helpful data visualizations to guide their decision-making process.')
+        st.write('Synergy is a data tracking platform used primarily for scouting purposes in collegiate basketball. Its current bottlenecks include poor organization, poor usability, and lack of practicality in the context of DIII scouting. Most notably, user-facing data tends to be heavily skewed towards landslide games against out-of-conference opponents, rendering insights unactionable. We created this app to enable coaches to scout opponent teams with a filterable subset of games. Coaches can choose a team to scout, select similar caliper opponents that the scouted team has played, and then view a comprehensive breakdown of that team’s strengths and weaknesses through a breakdown play types. The data is displayed in a standard tabular format with complementary data visualizations to drive insights.')
         st.markdown('---')
+        st.markdown('## Terminology')
         st.markdown("### Statistics Glossary")
         glossary_stats = ["Plays/Game", "Points", "PPP", "FGM", "FGA", "FG%", "aFG%", "TO%", "FT%",]
         for i, play in enumerate(glossary_stats):
@@ -186,7 +187,7 @@ if __name__ == "__main__":
                 for f in os.listdir("MARKDOWN/stats/"):
                     if f.startswith('%02d' % (i+1)):
                         st.markdown(read_markdown_file("MARKDOWN/stats/" + f), unsafe_allow_html=True)
-        st.markdown('---')
+        # st.markdown('---')
         st.markdown('### Play Type Glossary')
         glossary_plays = ['Pick-and-roll ball-handler', 'Pick-and-roll roll man', 'Transition', 'Off-screen', 'Spot-up', 'Isolation', 'Hand-offs', 'Cuts', 'Putbacks', 'Post-up', 'Miscellaneous']
         for i, play in enumerate(glossary_plays):
