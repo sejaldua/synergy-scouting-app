@@ -8,8 +8,7 @@ def round_nums(x):
         return x
 
 def parse_play(play_list, tallies):
-    seq = play_list.split(' > ')
-    seq = [info.strip() for info in seq]
+    seq = [info.strip() for info in play_list]
     for event in seq:
         if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
             tallies['attempts'] += 1
@@ -71,8 +70,8 @@ def tally_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
     for play in plays:
         if isinstance(play, list):
-            for poss in play:
-                tallies = parse_play(poss, tallies)
+            # for poss in play:
+            tallies = parse_play(play, tallies)
         else:
             tallies = parse_play(play, tallies)
     return tallies
@@ -106,76 +105,49 @@ def run_analytics(games, team):
 
     plays_dict = {seq: [] for seq in sequences}
     full_seq = True
-    for seq in sequences:
-        output = []
-        for game in games:
-            for poss in game:
-                if poss["team"] == team:
-                    plays = poss["plays"]
+    # for seq in sequences:
+    output = []
+    for game in games:
+        for poss in game:
+            if poss["team"] == team:
+                plays = poss["plays"]
 
-                    repeat_indices = []
-                    # Get all instances of more play types within a possession
-                    # Example: ['33 Eric Sellew', 'Non Shooting Foul', '3 Devonn Allen', 'Cut', 'Basket', 'Make 2 Pts']
-                    # Split at Devonn Allen, store that index in repeat_indices
-                    for idx, play in enumerate(plays):
-                        if play in sequences and idx > 1:
-                            repeat_indices.append(idx)
 
-                    # Parse through those repeats
-                    repeat_output = ""
-                    for idx, repeat in enumerate(repeat_indices):
-                        # Grab player name to store in the player dict
-                        player = plays[repeat - 1]
+                play_indices = []
+                for idx, play in enumerate(plays):
+                    if play in sequences:
+                        # found a play
+                        play_indices.append(idx)
 
-                        if idx < len(repeat_indices) - 1:
-                            repeat_output = plays[repeat-1] + " > "
-                            for r in range(repeat, repeat_indices[idx + 1]-1):
-                                repeat_output += "{} > ".format(plays[r])
-                            repeat_output = repeat_output[0:len(repeat_output) - 2]
+                # plays_dict[plays[repeat]].append(repeat_output)
+                # loop up to each one and store in player dict
+                for idx, play_idx in enumerate(play_indices):
+                    player = plays[play_idx - 1]
 
-                            # Store the subplays under the corresponding play type
-                            plays_dict[plays[repeat]].append(repeat_output)
-
+                    if plays[play_idx] in sequences:
+                        if idx < len(play_indices) - 1:
+                            subplays = []
+                            for play_id in range (play_idx, play_indices[idx+1]-1):
+                                subplays.append(plays[play_id])
+                            # at corresponding sequence, append subplay list
+                            plays_dict[plays[play_idx]].append(subplays)
+                        elif idx == 0 and len(play_indices) == 1:
+                            plays_dict[plays[play_idx]].append(plays)
                         else:
-                            # If we are at the second to last repeat index of repeat indices,
-                            # need to store everything up to the end of that play 
-                            repeat_output = plays[repeat_indices[idx]-1]  + " > "
-                            for r in range(repeat_indices[idx], len(plays)):
-                                repeat_output += "{} > ".format(plays[r])
+                            # taking from the player within the play to the end
+                            subplays = []
+                            for idx in range (play_idx, len(plays)):
+                                subplays.append(plays[idx])
+                            plays_dict[subplays[0]].append(subplays)
 
-                            # Store the subplays under the corresponding play type
-                            repeat_output = repeat_output[0:len(repeat_output) - 2]
-                            plays_dict[plays[repeat]].append(repeat_output)
-                    for index in range(len(plays)):
-                        player = plays[0]
-
-                        match = True
-                        # index+1 is the play type, index is just the player
-                        # if the play does not contain the proper sequence, don't store
-                        if plays[index+1] != seq:
-                            match = False
-                            break
-                        
-                        if match:
-                            play_seq = ""
-                            if full_seq:
-                                for match_index in range(0, len(plays)):
-                                    play_seq += "{} > ".format(plays[match_index])
-                                play_seq = play_seq[0:len(play_seq) - 2]
-                            output.append(play_seq)
-                            break
-
-        
-        # Add subplays to the play dict at that play type
-        plays_dict[seq].append(output)    
-
+  
     # Calculate overall stats for play type  
     stat_dict = {}
     for seq in sequences:
         tallies = tally_stats(plays_dict[seq])
         stat_dict[seq] = compute_stats(tallies, len(games))
+        
     stat_df = pd.DataFrame.from_dict(stat_dict, orient='index').dropna(subset=['FG%'])
-
     player_stats, player_play_dict = get_player_stats(games, team)
    
     # print("\n\n Return player_play_dict for following\n Player & play dict for Fru Che",player_play_dict['25 Fru Che']['Spot-Up'])
