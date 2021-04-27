@@ -1,12 +1,6 @@
 import pandas as pd
 import numpy as np
 
-def round_nums(x):
-    try:
-        return round(x, 2)
-    except:
-        return x
-
 def parse_play(play_list, tallies):
     seq = [info.strip() for info in play_list]
     for event in seq:
@@ -195,10 +189,6 @@ def get_player_stats(games, team):
         tallies = tally_player_stats(player_dict[player])
         player_stat_dict[player] = compute_stats(tallies, len(games))
     player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index')
-
-    # take care of rounding
-    for col in player_stat_df.columns:
-        player_stat_df[col] = player_stat_df[col].apply(lambda x: round_nums(x))
 
     player_play_dict = get_player_play_dict(player_dict)
     return player_stat_df, player_play_dict
