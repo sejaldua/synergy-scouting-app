@@ -274,17 +274,19 @@ if __name__ == "__main__":
             # Run whatever analysis you'd like on the data
             stat_module = import_module(module)
             play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
-            print(play_type_dict)
+
 
             if page == "Team Analysis":
                 st.markdown('### Play Type Breakdown')
                 st.dataframe(play_type_df.style.format("{:.2f}"))
-                df = stat_module.get_hierarchical_plays(games, team)
+                seqs = list(play_type_df.index)
+                df = stat_module.get_hierarchical_plays(games, team, seqs)
+                df['FG%'] = df['A'].apply(lambda x: round(play_type_dict[x]['FG%'], 2))
+                mid = np.mean([play_type_dict[key]['FG%'] for key in play_type_dict.keys() if not pd.isna(play_type_dict[key]['FG%'])])
+                print("overall FG", mid)
                 df['Overall'] = 'Overall'
-                df['FG%'] = df['A'].apply(lambda x: play_type_dict[x]['FG%'])
-                # print(df)
-                fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], range_color=[0, 100], color_continuous_scale='RdBu', color='FG%')
-
+                fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], color_continuous_scale='RdBu', color_continuous_midpoint=mid, color='FG%', hover_data={'FG%':':.2f'})
+                # fig.update_traces(marker_cmin=0, marker_cmax=100, marker_cmid = mid, selector=dict(type='treemap'))
                 fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
                 st.plotly_chart(fig, use_container_width=True)
 

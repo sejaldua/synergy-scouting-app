@@ -174,7 +174,7 @@ def run_analytics(games, team):
     for seq in sequences:
         tallies = tally_stats(plays_dict[seq])
         stat_dict[seq] = compute_stats(tallies, len(games))
-    stat_df = pd.DataFrame.from_dict(stat_dict, orient='index')
+    stat_df = pd.DataFrame.from_dict(stat_dict, orient='index').dropna(subset=['FG%'])
 
     player_stats, player_play_dict = get_player_stats(games, team)
    
@@ -247,8 +247,7 @@ def get_player_play_dict(player_dict):
                     player_play_dict[player][seq].append(play)
     return player_play_dict
 
-def get_hierarchical_plays(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
+def get_hierarchical_plays(games, team, sequences):
     output = []
     full_seq = False
     for seq in sequences:
