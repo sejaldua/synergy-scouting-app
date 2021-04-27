@@ -273,13 +273,17 @@ if __name__ == "__main__":
 
             # Run whatever analysis you'd like on the data
             stat_module = import_module(module)
-            play_type_df, player_stats = stat_module.run_analytics(games, team)
+            play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
+            print(play_type_dict)
 
             if page == "Team Analysis":
                 st.markdown('### Play Type Breakdown')
                 st.dataframe(play_type_df.style.format("{:.2f}"))
                 df = stat_module.get_hierarchical_plays(games, team)
-                fig = px.treemap(df, path=['A', 'B', 'C'], color_discrete_sequence=px.colors.qualitative.Prism)
+                df['Overall'] = 'Overall'
+                df['FG%'] = df['A'].apply(lambda x: play_type_dict[x]['FG%'])
+                # print(df)
+                fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], range_color=[0, 100], color_continuous_scale='RdBu', color='FG%')
 
                 fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
                 st.plotly_chart(fig, use_container_width=True)
