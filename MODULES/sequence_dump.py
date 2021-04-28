@@ -1,7 +1,11 @@
 import pandas as pd
 import numpy as np
 
+# global variable for all possible play types
+SEQUENCES = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
+
 def parse_play(play_list, tallies):
+    play_list = [play.strip() for play in play_list]
     for event in play_list:
         if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
             tallies['attempts'] += 1
@@ -33,16 +37,13 @@ def parse_play(play_list, tallies):
 def tally_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
     for play in plays:
-        play = [val.strip() for val in play]
         tallies = parse_play(play, tallies)
     return tallies
 
 def tally_player_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
     for play in plays:
-        if isinstance(plays, list):
-            play = [val.strip() for val in play]
-            tallies = parse_play(play, tallies)
+        tallies = parse_play(play, tallies)
     return tallies
 
 def compute_stats(tallies, game_count):
@@ -60,13 +61,17 @@ def compute_stats(tallies, game_count):
     print(stats)
     return stats
 
+def get_stats_dict(plays_dict, games):
+    # Calculate overall stats for play type  
+    stat_dict = {}
+    for seq in SEQUENCES:
+        tallies = tally_stats(plays_dict[seq])
+        stat_dict[seq] = compute_stats(tallies, len(games))
+    return stat_dict
 
 def run_analytics(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
-
-    plays_dict = {seq: [] for seq in sequences}
+    plays_dict = {seq: [] for seq in SEQUENCES}
     full_seq = True
-    # for seq in sequences:
     output = []
     for game in games:
         for poss in game:
@@ -75,7 +80,7 @@ def run_analytics(games, team):
 
                 play_indices = []
                 for idx, play in enumerate(plays):
-                    if play in sequences:
+                    if play in SEQUENCES:
                         # found a play
                         play_indices.append(idx)
 
@@ -84,7 +89,7 @@ def run_analytics(games, team):
                 for idx, play_idx in enumerate(play_indices):
                     player = plays[play_idx - 1]
 
-                    if plays[play_idx] in sequences:
+                    if plays[play_idx] in SEQUENCES:
                         if idx < len(play_indices) - 1:
                             subplays = []
                             for play_id in range (play_idx, play_indices[idx+1]-1):
@@ -100,12 +105,8 @@ def run_analytics(games, team):
                                 subplays.append(plays[idx])
                             plays_dict[subplays[0]].append(subplays)
 
-  
-    # Calculate overall stats for play type  
-    stat_dict = {}
-    for seq in sequences:
-        tallies = tally_stats(plays_dict[seq])
-        stat_dict[seq] = compute_stats(tallies, len(games))
+    
+    stat_dict = get_stats_dict(plays_dict, games)
         
     stat_df = pd.DataFrame.from_dict(stat_dict, orient='index').dropna(subset=['FG%'])
     player_stats, player_play_dict = get_player_stats(games, team)
@@ -114,7 +115,6 @@ def run_analytics(games, team):
     return stat_df, stat_dict, player_stats
 
 def get_player_stats(games, team):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous", "Free Throw"] 
     player_dict = {}
     full_seq = True
     for game in games:
@@ -131,7 +131,7 @@ def get_player_stats(games, team):
                 # loop up to each one and store in player dict
                 for idx, player_idx in enumerate(player_indices):
                     player = plays[player_idx]
-                    if plays[player_idx + 1] in sequences:
+                    if plays[player_idx + 1] in SEQUENCES:
                         if player not in player_dict:
                             player_dict[player] = []
 
@@ -160,16 +160,15 @@ def get_player_stats(games, team):
     return player_stat_df, player_play_dict
 
 def get_player_play_dict(player_dict):
-    sequences = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
     player_play_dict = {}
     for player in player_dict:
         player_play_dict[player] = {}
-        for seq in sequences:
+        for seq in SEQUENCES:
             player_play_dict[player][seq] = []
 
     for player in player_dict:
         plays = player_dict[player]
-        for seq in sequences:
+        for seq in SEQUENCES:
             for play in plays:
                 if play[1] == seq:
                     player_play_dict[player][seq].append(play)
