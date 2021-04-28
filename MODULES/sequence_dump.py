@@ -2,36 +2,6 @@ import pandas as pd
 import numpy as np
 
 def parse_play(play_list, tallies):
-    seq = [info.strip() for info in play_list]
-    for event in seq:
-        if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
-            tallies['attempts'] += 1
-        if event == 'Miss 3 Pts':
-            tallies['3PT attempts'] += 1
-        if event == 'Make 2 Pts' or event == 'Make 3 Pts':
-            tallies['makes'] += 1
-            tallies['attempts'] += 1
-            if event == 'Make 2 Pts':
-                tallies['points'] += 2
-            elif event == 'Make 3 Pts':
-                tallies['points'] += 3
-                tallies['3PT makes'] += 1
-                tallies['3PT attempts'] += 1
-        if event == 'Guarded':
-            tallies['guarded'] += 1
-        if event == 'Open':
-            tallies['open'] += 1
-        if event == 'Turnover':
-            tallies['turnovers'] += 1
-        if event == 'Free Throw':
-            tallies['FT attempts'] += 1
-        if event == 'Made':
-            tallies['points'] += 1
-            tallies['FT makes'] += 1
-    tallies['possessions'] += 1
-    return tallies
-
-def parse_player_only_play(play_list, tallies):
     for event in play_list:
         if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
             tallies['attempts'] += 1
@@ -63,11 +33,8 @@ def parse_player_only_play(play_list, tallies):
 def tally_stats(plays):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
     for play in plays:
-        if isinstance(play, list):
-            # for poss in play:
-            tallies = parse_play(play, tallies)
-        else:
-            tallies = parse_play(play, tallies)
+        play = [val.strip() for val in play]
+        tallies = parse_play(play, tallies)
     return tallies
 
 def tally_player_stats(plays):
@@ -75,7 +42,7 @@ def tally_player_stats(plays):
     for play in plays:
         if isinstance(plays, list):
             play = [val.strip() for val in play]
-            tallies = parse_player_only_play(play, tallies)
+            tallies = parse_play(play, tallies)
     return tallies
 
 def compute_stats(tallies, game_count):
@@ -105,7 +72,6 @@ def run_analytics(games, team):
         for poss in game:
             if poss["team"] == team:
                 plays = poss["plays"]
-
 
                 play_indices = []
                 for idx, play in enumerate(plays):
