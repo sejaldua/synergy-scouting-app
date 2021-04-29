@@ -273,14 +273,15 @@ if __name__ == "__main__":
 
             # Run whatever analysis you'd like on the data
             stat_module = import_module(module)
-            play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
+            plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
+            # plays_dict, play_type_df, play_type_dict = stat_module.run_analytics(games, team)
 
 
             if page == "Team Analysis":
                 st.markdown('### Play Type Breakdown')
                 st.dataframe(play_type_df.style.format("{:.2f}"))
-                seqs = list(play_type_df.index)
-                df = stat_module.get_hierarchical_plays(games, team, seqs)
+                rel_play_types = list(play_type_df.index)
+                df = stat_module.get_hierarchical_plays(rel_play_types, plays_dict)
                 df['FG%'] = df['A'].apply(lambda x: round(play_type_dict[x]['FG%'], 2))
                 mid = np.mean([play_type_dict[key]['FG%'] for key in play_type_dict.keys() if not pd.isna(play_type_dict[key]['FG%'])])
                 print("overall FG", mid)

@@ -27,6 +27,7 @@ def parse_play(play_list, tallies):
         if event == 'Turnover':
             tallies['turnovers'] += 1
         if event == 'Free Throw':
+            tallies['points'] += 1
             tallies['FT attempts'] += 1
         if event == 'Made':
             tallies['points'] += 1
@@ -40,13 +41,8 @@ def tally_stats(plays):
         tallies = parse_play(play, tallies)
     return tallies
 
-def tally_player_stats(plays):
-    tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
-    for play in plays:
-        tallies = parse_play(play, tallies)
-    return tallies
-
 def compute_stats(tallies, game_count):
+    print(tallies)
     stats = {}
     stats['Plays/Game'] = tallies['possessions'] / game_count
     stats['Points'] = tallies['points'] / game_count
@@ -55,157 +51,105 @@ def compute_stats(tallies, game_count):
     stats['FGA'] = tallies['attempts'] / game_count
     stats['FG%'] = (stats['FGM'] / stats['FGA']) * 100 if stats['FGA'] != 0 else np.nan
     # https://thesaucereport.wordpress.com/2009/04/28/adjusted-field-goal-percentage/
-    stats['aFG%'] = ((stats['Points'] - tallies['FT makes']) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
+    stats['aFG%'] = ((stats['Points'] - (tallies['FT makes'] / game_count)) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
     stats['TO%'] = (tallies['turnovers'] / tallies['possessions']) * 100 if tallies['possessions'] != 0 else np.nan
     stats['FT%'] = (tallies['FT makes'] / tallies['FT attempts']) * 100 if tallies['FT attempts'] != 0 else np.nan
     print(stats)
+    print()
     return stats
 
-def get_stats_dict(plays_dict, games):
+def get_stats_dict(input_dict, games):
     # Calculate overall stats for play type  
     stat_dict = {}
-    for seq in SEQUENCES:
-        tallies = tally_stats(plays_dict[seq])
-        stat_dict[seq] = compute_stats(tallies, len(games))
+    for key in input_dict.keys():
+        tallies = tally_stats(input_dict[key])
+        stat_dict[key] = compute_stats(tallies, len(games))
+        # print(key, tallies)
     return stat_dict
 
-def run_analytics(games, team):
+def get_plays_dict(games, team):
     plays_dict = {seq: [] for seq in SEQUENCES}
-    full_seq = True
-    output = []
     for game in games:
         for poss in game:
             if poss["team"] == team:
-                plays = poss["plays"]
+                sequence = poss["plays"]
 
+                # get a list of all indices at which each keyword play happens
                 play_indices = []
-                for idx, play in enumerate(plays):
-                    if play in SEQUENCES:
+                for idx, event in enumerate(sequence):
+                    if event in SEQUENCES:
                         # found a play
                         play_indices.append(idx)
 
-                # plays_dict[plays[repeat]].append(repeat_output)
-                # loop up to each one and store in player dict
-                for idx, play_idx in enumerate(play_indices):
-                    player = plays[play_idx - 1]
+                if len(play_indices) == 0:
+                    continue
+                elif len(play_indices) == 1:
+                    plays_dict[sequence[play_indices[0]]].append(sequence)
+                else:
+                    prev_idx = play_indices[0]
+                    for play_idx in play_indices[1:]:
+                        subplay = sequence[prev_idx-1:play_idx-1]
+                        plays_dict[subplay[1]].append(subplay)
+                        prev_idx = play_idx
+                    subplay = sequence[play_idx-1:]
+                    plays_dict[subplay[1]].append(subplay)
+    return plays_dict
 
-                    if plays[play_idx] in SEQUENCES:
-                        if idx < len(play_indices) - 1:
-                            subplays = []
-                            for play_id in range (play_idx, play_indices[idx+1]-1):
-                                subplays.append(plays[play_id])
-                            # at corresponding sequence, append subplay list
-                            plays_dict[plays[play_idx]].append(subplays)
-                        elif idx == 0 and len(play_indices) == 1:
-                            plays_dict[plays[play_idx]].append(plays)
-                        else:
-                            # taking from the player within the play to the end
-                            subplays = []
-                            for idx in range (play_idx, len(plays)):
-                                subplays.append(plays[idx])
-                            plays_dict[subplays[0]].append(subplays)
-
-    
+def run_analytics(games, team):
+    # {spot up: [play 1, play 2, ...], post up: [play 1, play 2, ...], ...}
+    plays_dict = get_plays_dict(games, team)
     stat_dict = get_stats_dict(plays_dict, games)
-        
     stat_df = pd.DataFrame.from_dict(stat_dict, orient='index').dropna(subset=['FG%'])
-    player_stats, player_play_dict = get_player_stats(games, team)
-   
-    # print("\n\n Return player_play_dict for following\n Player & play dict for Fru Che",player_play_dict['25 Fru Che']['Spot-Up'])
-    return stat_df, stat_dict, player_stats
 
-def get_player_stats(games, team):
-    player_dict = {}
-    full_seq = True
-    for game in games:
-        for poss in game:
-            if poss["team"] == team:
-                plays = poss["plays"]
-                player_indices = []
-                # split on any token that starts with number
-                # keep list of repeat players
-                for idx, play in enumerate(plays):
-                    if play.split(' ')[0].isdigit() and play[2:5] != 'Pts':
-                        # found a player
-                        player_indices.append(idx)
-                # loop up to each one and store in player dict
-                for idx, player_idx in enumerate(player_indices):
-                    player = plays[player_idx]
-                    if plays[player_idx + 1] in SEQUENCES:
-                        if player not in player_dict:
-                            player_dict[player] = []
-
-                        # if the play is in sequnces
-                        if idx < len(player_indices) - 1:
-                            subplays = []
-                            for play_idx in range (player_idx, player_indices[idx+1]+1):
-                                subplays.append(plays[play_idx])
-                            player_dict[subplays[0]].append(subplays)
-                        elif idx == 0 and len(player_indices) == 1:
-                            player_dict[plays[0]].append(plays)
-                        else:
-                            # taking from the player within the play to the end
-                            subplays = []
-                            for play_idx in range (player_idx, len(plays)):
-                                subplays.append(plays[play_idx])
-                            player_dict[subplays[0]].append(subplays)
-
-    player_stat_dict = {}
-    for player in player_dict.keys():
-        tallies = tally_player_stats(player_dict[player])
-        player_stat_dict[player] = compute_stats(tallies, len(games))
+    # {spot up: [play 1, play 2, ...], post up: [play 1, play 2, ...], ...}
+    player_dict = get_player_dict(plays_dict)
+    player_stat_dict = get_stats_dict(player_dict, games)
+    print_dict(player_stat_dict)
     player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index')
+    # return player_stat_df, player_play_dict
+    # get_player_stats(plays_dict)
+    # print("\n\n Return player_play_dict for following\n Player & play dict for Fru Che",player_play_dict['25 Fru Che']['Spot-Up'])
+    # return plays_dict, stat_df, stat_dict
+    return plays_dict, stat_df, stat_dict, player_stat_df
 
-    player_play_dict = get_player_play_dict(player_dict)
-    return player_stat_df, player_play_dict
+def get_player_dict(plays_dict):
+    player_dict = {}
+    for pt in plays_dict.keys():
+        for sequence in plays_dict[pt]:
+            player = sequence[0]
+            # verify it is a player if token that starts with jersey number
+            if player.split(' ')[0].isdigit() and player[2:5] != 'Pts':
+                if player not in player_dict.keys():
+                    player_dict[player] = []
+                player_dict[player].append(sequence)
+            else:
+                continue
+    return player_dict
 
 def get_player_play_dict(player_dict):
-    player_play_dict = {}
-    for player in player_dict:
-        player_play_dict[player] = {}
-        for seq in SEQUENCES:
-            player_play_dict[player][seq] = []
-
+    player_play_dict = {player: {seq: [] for seq in SEQUENCES} for player in player_dict}
     for player in player_dict:
         plays = player_dict[player]
         for seq in SEQUENCES:
+            # print("--------  " + seq)
             for play in plays:
                 if play[1] == seq:
+                    # print(play)
                     player_play_dict[player][seq].append(play)
     return player_play_dict
 
-def get_hierarchical_plays(games, team, sequences):
+def get_hierarchical_plays(play_types, plays_dict):
     output = []
-    full_seq = False
-    for seq in sequences:
-        for game in games:
-            for poss in game:
-                if poss["team"] == team:
-                    plays = poss["plays"]
-                    for index in range(len(plays)):
-                        player = plays[0]
-                        match = True
-                        
-                        # index+1 is the play type, index is just the player
-                        if plays[index+1] != seq:
-                            match = False
-                            break
-                        
-                        if match:
-                            flag = True
-                            play_seq = ""
-                            for match_index in range(1, len(plays)):
-                                if plays[match_index] in sequences and plays[match_index] != seq:
-                                    flag = False
-                                if plays[match_index] == seq:
-                                    flag = True
-                                if flag:
-                                    play_seq += "{} > ".format(plays[match_index])
-                                else:
-                                    continue
-                                
-                            # play_seq = play_seq[0:len(play_seq) - 2]
-                            output.append(play_seq.split(" > ")[:4])
-                            break
+    for pt in play_types:
+        for sequence in plays_dict[pt]:
+            if sequence[1] == pt:
+                output.append(sequence[1:5])
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
+    print(df.head())
     return df
+
+def print_dict(d):
+    for key in d.keys():
+        print("KEY", key)
+        print(d[key])
+        print()
