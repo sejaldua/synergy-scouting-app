@@ -98,19 +98,20 @@ def get_plays_dict(games, team):
 def run_analytics(games, team):
     # {spot up: [play 1, play 2, ...], post up: [play 1, play 2, ...], ...}
     plays_dict = get_plays_dict(games, team)
-    stat_dict = get_stats_dict(plays_dict, games)
-    stat_df = pd.DataFrame.from_dict(stat_dict, orient='index').dropna(subset=['FG%'])
+    play_type_dict = get_stats_dict(plays_dict, games)
+    play_type_df = pd.DataFrame.from_dict(play_type_dict, orient='index').dropna(subset=['FG%']).round(2)
 
-    # {spot up: [play 1, play 2, ...], post up: [play 1, play 2, ...], ...}
+    # {25 Fru Che: [play 1, play 2, ...], 3 Devonn Allen: [play 1, play 2, ...], ...}
     player_dict = get_player_dict(plays_dict)
+
+    # {25 Fru Che: {'Plays/Game': 19.333, 'Points': 14.0, 'PPP': 0.72, ...}, 3 Devonn Allen: {...}, ...}
     player_stat_dict = get_stats_dict(player_dict, games)
-    print_dict(player_stat_dict)
-    player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index')
-    # return player_stat_df, player_play_dict
-    # get_player_stats(plays_dict)
-    # print("\n\n Return player_play_dict for following\n Player & play dict for Fru Che",player_play_dict['25 Fru Che']['Spot-Up'])
-    # return plays_dict, stat_df, stat_dict
-    return plays_dict, stat_df, stat_dict, player_stat_df
+    player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index').round(2)
+
+    player_play_dict = get_player_play_dict(player_dict)
+    print_dict(player_play_dict)
+
+    return plays_dict, play_type_df, play_type_dict, player_stat_df
 
 def get_player_dict(plays_dict):
     player_dict = {}

@@ -274,7 +274,6 @@ if __name__ == "__main__":
             # Run whatever analysis you'd like on the data
             stat_module = import_module(module)
             plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
-            # plays_dict, play_type_df, play_type_dict = stat_module.run_analytics(games, team)
 
 
             if page == "Team Analysis":
