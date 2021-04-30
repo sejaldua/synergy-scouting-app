@@ -54,8 +54,6 @@ def compute_stats(tallies, game_count):
     stats['aFG%'] = ((stats['Points'] - (tallies['FT makes'] / game_count)) / (2 * stats['FGA'])) * 100 if stats['FGA'] != 0 else np.nan
     stats['TO%'] = (tallies['turnovers'] / tallies['possessions']) * 100 if tallies['possessions'] != 0 else np.nan
     stats['FT%'] = (tallies['FT makes'] / tallies['FT attempts']) * 100 if tallies['FT attempts'] != 0 else np.nan
-    print(stats)
-    print()
     return stats
 
 def get_stats_dict(input_dict, games):
@@ -151,6 +149,6 @@ def get_hierarchical_plays(play_types, plays_dict):
 
 def print_dict(d):
     for key in d.keys():
-        print("KEY", key)
+        print(key)
         print(d[key])
         print()
