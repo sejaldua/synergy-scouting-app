@@ -50,7 +50,16 @@ In the above data snippet representing one possession that took place in the fir
 }
 ```
 
-
+### Player-level play type dictionary (sequences of events)
+*SCHEME: { 'player': [play sequence 1, play sequence 2, ...]}*
+```
+{
+'11 Grant Robinson': [['11 Grant Robinson', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts'], ['11 Grant Robinson', 'Spot-Up', 'Drives Right', 'To Basket', 'Make 2 Pts'], ... ]
+'25 Fru Che': [['25 Fru Che', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts'], ['25 Fru Che', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Make 3 Pts'], ... ]
+'20 Josh Chery': [['20 Josh Chery', 'Spot-Up', 'Drives Left', 'To Basket', 'Miss 2 Pts'], ['20 Josh Chery', 'Transition', 'Right Wing', 'No Dribble Jumper', 'Open', 'Long/3pt', 'Miss 3 Pts'], ['20 Josh Chery', 'Post-Up', 'Left Block', 'Left Shoulder', 'Dribble Move', 'Defense Commits', 'Ball Delivered'], ... ]
+...
+}
+```
 ## Usage
 
 Wrangling Testing: `python synergy_parse.py amherst sequence_dump`  
