@@ -72,6 +72,7 @@ In the above data snippet representing one possession that took place in the fir
 '20 Josh Chery': {'Plays/Game': 13.0, 'Points': 4.0, 'PPP': 0.3076923076923077, 'FGM': 2.0, 'FGA': 6.0, 'FG%': 33.33333333333333, 'aFG%': 33.33333333333333, 'TO%': 0.0, 'FT%': nan},
 ...
 }
+```
 
 ## Usage
 
