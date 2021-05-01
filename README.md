@@ -37,6 +37,20 @@ In the above data snippet representing one possession that took place in the fir
 ...
 }
 ```
+
+### Team-level play type dictionary (statistics)
+*SCHEME: { 'play type': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+```
+{
+'Spot-Up': {'Plays/Game': 20.0, 'Points': 23.0, 'PPP': 1.15, 'FGM': 7.0, 'FGA': 17.0, 'FG%': 41.17647058823529, 'aFG%': 64.70588235294117, 'TO%': 10.0, 'FT%': 33.33333333333333}, 
+'Transition': {'Plays/Game': 12.0, 'Points': 9.0, 'PPP': 0.75, 'FGM': 3.0, 'FGA': 11.0, 'FG%': 27.27272727272727, 'aFG%': 36.36363636363637, 'TO%': 0.0, 'FT%': 100.0}, 
+'Post-Up': {'Plays/Game': 13.0, 'Points': 6.0, 'PPP': 0.46153846153846156, 'FGM': 3.0, 'FGA': 9.0, 'FG%': 33.33333333333333, 'aFG%': 33.33333333333333, 'TO%': 7.6923076923076925, 'FT%': nan}, 
+'P&R Ball Handler': {'Plays/Game': 22.0, 'Points': 13.0, 'PPP': 0.5909090909090909, 'FGM': 2.0, 'FGA': 2.0, 'FG%': 100.0, 'aFG%': 250.0, 'TO%': 18.181818181818183, 'FT%': 60.0}
+...
+}
+```
+
+
 ## Usage
 
 Wrangling Testing: `python synergy_parse.py amherst sequence_dump`  
