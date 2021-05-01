@@ -25,7 +25,7 @@ Using an HTML parser, this app scrapes collegiate basketball play-by-play data f
 
 In the above data snippet representing one possession that took place in the first quarter of a game between Amherst and Middlebury, we see many attributes of interest. Since this project focuses on play types, we chose to hone in on the "plays" field. We can observe that in the above posession, there was a pick-and-roll (ball handler) play which resulted in a spot-up play thereafter. Given that we wanted to do an analysis of the efficacy of various play types in order to scout an opponent and tailor game preparation based on their strengths and weaknesses, we needed to wrangle this possession data into sequences of events which can be queried by play type and/or player. The following dictionaries form the basis of our project:
 
-### Team-level play type dictionary (sequences of events)
+### Play type dictionary (sequences of events)
 
 *SCHEME: { 'play type': [play sequence 1, play sequence 2, ...]}*
 ```
@@ -38,7 +38,7 @@ In the above data snippet representing one possession that took place in the fir
 }
 ```
 
-### Team-level play type dictionary (statistics)
+### Play type dictionary (statistics)
 *SCHEME: { 'play type': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
 ```
 {
@@ -50,7 +50,7 @@ In the above data snippet representing one possession that took place in the fir
 }
 ```
 
-### Player-level play type dictionary (sequences of events)
+### Player dictionary (sequences of events)
 *SCHEME: { 'player': [play sequence 1, play sequence 2, ...]}*
 ```
 {
@@ -61,7 +61,7 @@ In the above data snippet representing one possession that took place in the fir
 }
 ```
 
-### Player-level play type dictionary (statistics)
+### Player dictionary (statistics)
 *SCHEME: { 'player': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
 ```
 {
