@@ -23,7 +23,7 @@ Using an HTML parser, this app scrapes collegiate basketball play-by-play data f
 }
 ```
 
-In the above data snippet representing one possession that took place in the first quarter of a game between Amherst and Middlebury, we see many attributes of interest. Since this project focuses on play types, we chose to hone in on the "plays" field. We can observe that in the above play, there was a pick-and-roll (ball handler) play which resulted in a spot-up play thereafter. Given that we wanted to do an analysis of the efficacy of various play types in order to scout an opponent and tailor game preparation based on their strengths and weaknesses, we needed to wrangle this possession data into sequences of events which can be queried by play type and/or player. The following dictionaries form the basis of our project:
+In the above data snippet representing one possession that took place in the first quarter of a game between Amherst and Middlebury, we see many attributes of interest. Since this project focuses on play types, we chose to hone in on the "plays" field. We can observe that in the above posession, there was a pick-and-roll (ball handler) play which resulted in a spot-up play thereafter. Given that we wanted to do an analysis of the efficacy of various play types in order to scout an opponent and tailor game preparation based on their strengths and weaknesses, we needed to wrangle this possession data into sequences of events which can be queried by play type and/or player. The following dictionaries form the basis of our project:
 
 ### Team-level play type dictionary (sequences of events)
 
@@ -60,6 +60,19 @@ In the above data snippet representing one possession that took place in the fir
 ...
 }
 ```
+
+### Player-level play type dictionary (statistics)
+*SCHEME: { 'player': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+```
+{
+'11 Grant Robinson': {'Plays/Game': 19.0, 'Points': 17.0, 'PPP': 0.8947368421052632, 'FGM': 7.0, 'FGA': 13.0, 'FG%': 53.84615384615385, 'aFG%': 65.38461538461539, 'TO%': 5.263157894736842, 'FT%': nan},
+'25 Fru Che': {'Plays/Game': 10.0, 'Points': 20.0, 'PPP': 2.0, 'FGM': 2.0, 'FGA': 6.0, 'FG%': 33.33333333333333, 'aFG%': 108.33333333333333, 'TO%': 0.0, 'FT%': 87.5}, 
+'15 Tim Mccarthy': {'Plays/Game': 7.0, 'Points': 10.0, 'PPP': 1.4285714285714286, 'FGM': 2.0, 'FGA': 3.0, 'FG%': 66.66666666666666, 'aFG%': 133.33333333333331, 'TO%': 0.0, 'FT%': 100.0}, 
+'1 Garrett Day': {'Plays/Game': 15.0, 'Points': 10.0, 'PPP': 0.6666666666666666, 'FGM': 3.0, 'FGA': 9.0, 'FG%': 33.33333333333333, 'aFG%': 55.55555555555556, 'TO%': 6.666666666666667, 'FT%': 0.0}, 
+'20 Josh Chery': {'Plays/Game': 13.0, 'Points': 4.0, 'PPP': 0.3076923076923077, 'FGM': 2.0, 'FGA': 6.0, 'FG%': 33.33333333333333, 'aFG%': 33.33333333333333, 'TO%': 0.0, 'FT%': nan},
+...
+}
+
 ## Usage
 
 Wrangling Testing: `python synergy_parse.py amherst sequence_dump`  
