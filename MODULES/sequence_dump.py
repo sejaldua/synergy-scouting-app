@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import plotly.express as px
 
 # global variable for all possible play types
 SEQUENCES = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
@@ -143,16 +144,40 @@ def get_player_play_dict(player_dict):
                     player_play_dict[player][seq].append(play)
     return player_play_dict
 
-def get_hierarchical_plays(play_types, plays_dict):
+def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     output = []
     for pt in play_types:
-        for sequence in plays_dict[pt]:
+        for sequence in play_type_plays_dict[pt]:
             if sequence[1] == pt:
                 output.append(sequence[1:5])
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
-    print(df.head())
-    return df
+    df['FG%'] = df['A'].apply(lambda x: round(play_type_stats_dict[x]['FG%'], 2))
+    df['Overall'] = 'Overall'
+    midpoint = np.mean([play_type_stats_dict[key]['FG%'] for key in play_type_stats_dict.keys() if not pd.isna(play_type_stats_dict[key]['FG%'])])
+    fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], color_continuous_scale='RdBu', color_continuous_midpoint=midpoint, color='FG%', hover_data={'FG%':':.2f'})
+    # fig.update_traces(marker_cmin=0, marker_cmax=100, marker_cmid = mid, selector=dict(type='treemap'))
+    fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
+    return fig
 
+def make_scatterplot(play_type_df):
+    ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
+    plays_list = play_type_df.index.values
+    ppp_and_poss_df['Play'] = plays_list
+    fig = px.scatter(ppp_and_poss_df,
+        x=ppp_and_poss_df["Plays/Game"],
+        y=ppp_and_poss_df["PPP"],
+        hover_name=ppp_and_poss_df["Play"],
+        hover_data=["PPP"],
+        color="Play"
+    )
+    fig.update_layout(
+        xaxis_title="Plays/Game",
+        yaxis_title="Points per Possession",
+    )
+    return fig
+
+
+# helper function for debugging dictionaries
 def print_dict(d):
     for key in d.keys():
         print(key)

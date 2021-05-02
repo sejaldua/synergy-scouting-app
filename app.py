@@ -283,34 +283,14 @@ if __name__ == "__main__":
                     st.markdown('### Play Type Breakdown')
                     st.dataframe(play_type_df.style.format("{:.2f}"))
                     rel_play_types = list(play_type_df.index)
-                    df = stat_module.get_hierarchical_plays(rel_play_types, plays_dict)
-                    df['FG%'] = df['A'].apply(lambda x: round(play_type_dict[x]['FG%'], 2))
-                    mid = np.mean([play_type_dict[key]['FG%'] for key in play_type_dict.keys() if not pd.isna(play_type_dict[key]['FG%'])])
-                    print("overall FG", mid)
-                    df['Overall'] = 'Overall'
-                    fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], color_continuous_scale='RdBu', color_continuous_midpoint=mid, color='FG%', hover_data={'FG%':':.2f'})
-                    # fig.update_traces(marker_cmin=0, marker_cmax=100, marker_cmid = mid, selector=dict(type='treemap'))
-                    fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
-                    st.plotly_chart(fig, use_container_width=True)
 
-                    ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
-                    plays_list = play_type_df.index.values
-                    ppp_and_poss_df['Play'] = plays_list
+                    # slice all play sequences into list of first 4 events for hierarchical treemap viz
+                    treemap = stat_module.make_treemap(rel_play_types, plays_dict, play_type_dict)
+                    st.plotly_chart(treemap, use_container_width=True)
 
-                    fig = px.scatter(ppp_and_poss_df,
-                        x=ppp_and_poss_df["Plays/Game"],
-                        y=ppp_and_poss_df["PPP"],
-                        hover_name=ppp_and_poss_df["Play"],
-                        hover_data=["PPP"],
-                        color="Play"
-                    )
-
-                    fig.update_layout(
-                        xaxis_title="Plays/Game",
-                        yaxis_title="Points per Possession",
-                    )
-
-                    st.write(fig)
+                    # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
+                    scatterplot = stat_module.make_scatterplot(play_type_df)
+                    st.plotly_chart(scatterplot)
 
                 elif page == "Player Analysis":
                     # player_stats_df = player_stats.style.format("{:.2f}")
@@ -340,7 +320,7 @@ if __name__ == "__main__":
         <style>
         footer {visibility: hidden;}   
         footer:after {
-                content:'Authored by Sejal Dua, Sook-Hee Evans, and Noah Zhang | Tufts University | Spring 2021'; 
+                content:'Built by Sejal Dua, Sook-Hee Evans, and Noah Zhang | Tufts University | Spring 2021'; 
                 visibility: visible;
                 display: block;
                 position: relative;
