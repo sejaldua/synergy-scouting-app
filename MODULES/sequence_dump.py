@@ -42,7 +42,7 @@ def tally_stats(plays):
     return tallies
 
 def compute_stats(tallies, game_count):
-    print(tallies)
+    # print(tallies)
     stats = {}
     stats['Plays/Game'] = tallies['possessions'] / game_count
     stats['Points'] = tallies['points'] / game_count
@@ -104,10 +104,10 @@ def run_analytics(games, team):
 
     # {25 Fru Che: {'Plays/Game': 19.333, 'Points': 14.0, 'PPP': 0.72, ...}, 3 Devonn Allen: {...}, ...}
     player_stat_dict = get_stats_dict(player_dict, games)
+    print(player_stat_dict)
     player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index').round(2)
 
     player_play_dict = get_player_play_dict(player_dict)
-    print_dict(player_play_dict)
 
     return plays_dict, play_type_df, play_type_dict, player_stat_df
 
