@@ -27,7 +27,7 @@ In the above data snippet representing one possession that took place in the fir
 
 ### Play type dictionary (sequences of events)
 
-*SCHEME: { 'play type': [play sequence 1, play sequence 2, ...]}*
+*{ 'play type': [play sequence 1, play sequence 2, ...]}*
 ```
 {
 'Spot-Up': [['25 Fru Che', 'Spot-Up', 'Drives Right', 'To Basket', 'Turnover'], ['3 Devonn Allen', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Make 3 Pts'], ... ], 
@@ -39,7 +39,7 @@ In the above data snippet representing one possession that took place in the fir
 ```
 
 ### Play type dictionary (statistics)
-*SCHEME: { 'play type': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+*{ 'play type': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
 ```
 {
 'Spot-Up': {'Plays/Game': 20.0, 'Points': 23.0, 'PPP': 1.15, 'FGM': 7.0, 'FGA': 17.0, 'FG%': 41.17647058823529, 'aFG%': 64.70588235294117, 'TO%': 10.0, 'FT%': 33.33333333333333}, 
@@ -51,7 +51,7 @@ In the above data snippet representing one possession that took place in the fir
 ```
 
 ### Player dictionary (sequences of events)
-*SCHEME: { 'player': [play sequence 1, play sequence 2, ...]}*
+*{ 'player': [play sequence 1, play sequence 2, ...]}*
 ```
 {
 '11 Grant Robinson': [['11 Grant Robinson', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts'], ['11 Grant Robinson', 'Spot-Up', 'Drives Right', 'To Basket', 'Make 2 Pts'], ... ]
@@ -62,7 +62,7 @@ In the above data snippet representing one possession that took place in the fir
 ```
 
 ### Player dictionary (statistics)
-*SCHEME: { 'player': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+*{ 'player': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
 ```
 {
 '11 Grant Robinson': {'Plays/Game': 19.0, 'Points': 17.0, 'PPP': 0.8947368421052632, 'FGM': 7.0, 'FGA': 13.0, 'FG%': 53.84615384615385, 'aFG%': 65.38461538461539, 'TO%': 5.263157894736842, 'FT%': nan},
