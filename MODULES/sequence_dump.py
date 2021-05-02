@@ -56,12 +56,13 @@ def compute_stats(tallies, game_count):
     stats['FT%'] = (tallies['FT makes'] / tallies['FT attempts']) * 100 if tallies['FT attempts'] != 0 else np.nan
     return stats
 
-def get_stats_dict(input_dict, games):
-    # Calculate overall stats for play type  
+# calculate overall stats based on list of play sequences for each
+# given play type or player (the keys of input dictionary)
+def get_stats_dict(input_dict, num_games):
     stat_dict = {}
     for key in input_dict.keys():
         tallies = tally_stats(input_dict[key])
-        stat_dict[key] = compute_stats(tallies, len(games))
+        stat_dict[key] = compute_stats(tallies, num_games)
         # print(key, tallies)
     return stat_dict
 
@@ -79,10 +80,13 @@ def get_plays_dict(games, team):
                         # found a play
                         play_indices.append(idx)
 
+                # the possession does not have any play types (e.g. turnover, shot clock violation, etc.)
                 if len(play_indices) == 0:
                     continue
+                # the possession only has one play type
                 elif len(play_indices) == 1:
                     plays_dict[sequence[play_indices[0]]].append(sequence)
+                # split up possession with multiple play types into separate sequences
                 else:
                     prev_idx = play_indices[0]
                     for play_idx in play_indices[1:]:
@@ -94,22 +98,24 @@ def get_plays_dict(games, team):
     return plays_dict
 
 def run_analytics(games, team):
-    # {spot up: [play 1, play 2, ...], post up: [play 1, play 2, ...], ...}
-    plays_dict = get_plays_dict(games, team)
-    play_type_dict = get_stats_dict(plays_dict, games)
-    play_type_df = pd.DataFrame.from_dict(play_type_dict, orient='index').dropna(subset=['FG%']).round(2)
+    # Build dictionaries for querying by play type (player agnostic)
+    # {'Spot-Up': [play 1, play 2, ...], 'Post-Up': [play 1, play 2, ...], ...}
+    play_type_plays_dict = get_plays_dict(games, team)
+    # {'Spot-Up': {'Plays/Game': 21.75, 'Points': 24.25, ... }, ... }
+    play_type_stat_dict = get_stats_dict(play_type_plays_dict, len(games))
+    # Convert to tabular dataframe format for Streamlit display
+    play_type_stat_df = pd.DataFrame.from_dict(play_type_stat_dict, orient='index').dropna(subset=['FG%']).round(2)
 
-    # {25 Fru Che: [play 1, play 2, ...], 3 Devonn Allen: [play 1, play 2, ...], ...}
-    player_dict = get_player_dict(plays_dict)
-
-    # {25 Fru Che: {'Plays/Game': 19.333, 'Points': 14.0, 'PPP': 0.72, ...}, 3 Devonn Allen: {...}, ...}
-    player_stat_dict = get_stats_dict(player_dict, games)
-    print(player_stat_dict)
+    # Build dictionaries for querying by player (play type agnostic)
+    # {'25 Fru Che': [play 1, play 2, ...], '3 Devonn Allen': [play 1, ...],...}
+    player_plays_dict = get_player_dict(play_type_plays_dict)
+    # {'25 Fru Che': {'Plays/Game': 19.333, 'Points': 14.0, ...}, ...}
+    player_stat_dict = get_stats_dict(player_plays_dict, len(games))
     player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index').round(2)
 
-    player_play_dict = get_player_play_dict(player_dict)
+    player_play_dict = get_player_play_dict(player_plays_dict)
 
-    return plays_dict, play_type_df, play_type_dict, player_stat_df
+    return play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df
 
 def get_player_dict(plays_dict):
     player_dict = {}
