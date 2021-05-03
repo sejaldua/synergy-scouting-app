@@ -1,47 +1,50 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import streamlit as st
 
 # global variable for all possible play types
 SEQUENCES = ["Spot-Up", "Transition", "Post-Up", "P&R Ball Handler", "Cut", "Hand Off", "Offensive Rebound", "Off Screen", "ISO", "P&R Roll Man", "Miscellaneous"]
 
-def parse_play(play_list, tallies):
-    play_list = [play.strip() for play in play_list]
-    for event in play_list:
-        if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
-            tallies['attempts'] += 1
-        if event == 'Miss 3 Pts':
-            tallies['3PT attempts'] += 1
-        if event == 'Make 2 Pts' or event == 'Make 3 Pts':
-            tallies['makes'] += 1
-            tallies['attempts'] += 1
-            if event == 'Make 2 Pts':
-                tallies['points'] += 2
-            elif event == 'Make 3 Pts':
-                tallies['points'] += 3
-                tallies['3PT makes'] += 1
-                tallies['3PT attempts'] += 1
-        if event == 'Guarded':
-            tallies['guarded'] += 1
-        if event == 'Open':
-            tallies['open'] += 1
-        if event == 'Turnover':
-            tallies['turnovers'] += 1
-        if event == 'Free Throw':
-            tallies['points'] += 1
-            tallies['FT attempts'] += 1
-        if event == 'Made':
-            tallies['points'] += 1
-            tallies['FT makes'] += 1
-    tallies['possessions'] += 1
-    return tallies
-
-def tally_stats(plays):
+# tally up keyword-based outcomes of play sequences
+# interested in attempts, makes, guarded vs. open, turnovers, and free throws
+def tally_stats(play_list):
     tallies = {'attempts': 0, 'makes': 0, 'guarded': 0, 'open': 0, '3PT attempts': 0, '3PT makes': 0, 'turnovers': 0, 'possessions': 0, 'FT attempts': 0, 'FT makes': 0, 'points': 0}
-    for play in plays:
-        tallies = parse_play(play, tallies)
+    for single_play in play_list:
+        sequence = [event.strip() for event in single_play]
+        for event in sequence:
+            if event == 'Miss 2 Pts' or event == 'Miss 3 Pts':
+                tallies['attempts'] += 1
+            if event == 'Miss 3 Pts':
+                tallies['3PT attempts'] += 1
+            if event == 'Make 2 Pts' or event == 'Make 3 Pts':
+                tallies['makes'] += 1
+                tallies['attempts'] += 1
+                if event == 'Make 2 Pts':
+                    tallies['points'] += 2
+                elif event == 'Make 3 Pts':
+                    tallies['points'] += 3
+                    tallies['3PT makes'] += 1
+                    tallies['3PT attempts'] += 1
+            if event == 'Guarded':
+                tallies['guarded'] += 1
+            if event == 'Open':
+                tallies['open'] += 1
+            if event == 'Turnover':
+                tallies['turnovers'] += 1
+            if event == 'Free Throw':
+                tallies['points'] += 1
+                tallies['FT attempts'] += 1
+            if event == 'Made':
+                tallies['points'] += 1
+                tallies['FT makes'] += 1
+        tallies['possessions'] += 1
     return tallies
 
+# compute synergy stats from tallied up play / shot outcomes
+# stats include: plays / game, points, points per possession, field goals made, 
+# field goals attempted, field goal percentage, adjusted field goal percentage,
+# turnover rate, and free throw rate
 def compute_stats(tallies, game_count):
     # print(tallies)
     stats = {}
@@ -67,6 +70,10 @@ def get_stats_dict(input_dict, num_games):
         # print(key, tallies)
     return stat_dict
 
+# parse, split, and clean play-by-play data for filtered subset of games played
+# by the team being scouted; returns a dictionary with play types as keys
+# and a list of play sequences as values
+# e.g. {'Spot-Up': [play 1, play 2, ...], 'Post-Up': [play 1, play 2, ...], ...}
 def get_plays_dict(games, team):
     plays_dict = {seq: [] for seq in SEQUENCES}
     for game in games:
@@ -98,26 +105,9 @@ def get_plays_dict(games, team):
                     plays_dict[subplay[1]].append(subplay)
     return plays_dict
 
-def run_analytics(games, team):
-    # Build dictionaries for querying by play type (player agnostic)
-    # {'Spot-Up': [play 1, play 2, ...], 'Post-Up': [play 1, play 2, ...], ...}
-    play_type_plays_dict = get_plays_dict(games, team)
-    # {'Spot-Up': {'Plays/Game': 21.75, 'Points': 24.25, ... }, ... }
-    play_type_stat_dict = get_stats_dict(play_type_plays_dict, len(games))
-    # Convert to tabular dataframe format for Streamlit display
-    play_type_stat_df = pd.DataFrame.from_dict(play_type_stat_dict, orient='index').dropna(subset=['FG%']).round(2)
-
-    # Build dictionaries for querying by player (play type agnostic)
-    # {'25 Fru Che': [play 1, play 2, ...], '3 Devonn Allen': [play 1, ...],...}
-    player_plays_dict = get_player_dict(play_type_plays_dict)
-    # {'25 Fru Che': {'Plays/Game': 19.333, 'Points': 14.0, ...}, ...}
-    player_stat_dict = get_stats_dict(player_plays_dict, len(games))
-    player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index').round(2)
-
-    player_play_dict = get_player_play_dict(player_plays_dict)
-
-    return play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df
-
+# go through all play sequences in player-agnostic play type dictionary and 
+# sort the plays into a new dictionary with players as keys; the primary player involved in the play should be the first element in the list
+# e.g. {'25 Fru Che': [play 1, play 2,...], '3 Devonn Allen': [play 1, ...],...}
 def get_player_dict(plays_dict):
     player_dict = {}
     for pt in plays_dict.keys():
@@ -143,6 +133,25 @@ def get_player_play_dict(player_dict):
                     # print(play)
                     player_play_dict[player][seq].append(play)
     return player_play_dict
+
+@st.cache()
+def run_analytics(games, team):
+    # Build dictionaries for querying by play type (player agnostic)
+    play_type_plays_dict = get_plays_dict(games, team)
+    play_type_stat_dict = get_stats_dict(play_type_plays_dict, len(games))
+    # Convert to tabular dataframe format for Streamlit display
+    play_type_stat_df = pd.DataFrame.from_dict(play_type_stat_dict, orient='index').dropna(subset=['FG%']).round(2)
+
+    # Build dictionaries for querying by player (play type agnostic)
+    player_plays_dict = get_player_dict(play_type_plays_dict)
+    player_stat_dict = get_stats_dict(player_plays_dict, len(games))
+    # Convert to tabular dataframe format for Streamlit display
+    player_stat_df = pd.DataFrame.from_dict(player_stat_dict, orient='index').dropna(subset=['FG%']).round(2)
+
+    player_play_dict = get_player_play_dict(player_plays_dict)
+
+    return play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df
+
 
 def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     output = []

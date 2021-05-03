@@ -276,26 +276,27 @@ if __name__ == "__main__":
 
                 # Run whatever analysis you'd like on the data
                 stat_module = import_module(module)
-                plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
+                # plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
+                play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
 
 
                 if page == "Team Analysis":
                     st.markdown('### Play Type Breakdown')
-                    st.dataframe(play_type_df.style.format("{:.2f}"))
-                    rel_play_types = list(play_type_df.index)
+                    st.dataframe(play_type_stat_df.style.format("{:.2f}"))
+                    rel_play_types = list(play_type_stat_df.index)
 
                     # slice all play sequences into list of first 4 events for hierarchical treemap viz
-                    treemap = stat_module.make_treemap(rel_play_types, plays_dict, play_type_dict)
+                    treemap = stat_module.make_treemap(rel_play_types, play_type_plays_dict, play_type_stat_dict)
                     st.plotly_chart(treemap, use_container_width=True)
 
                     # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
-                    scatterplot = stat_module.make_scatterplot(play_type_df)
+                    scatterplot = stat_module.make_scatterplot(play_type_stat_df)
                     st.plotly_chart(scatterplot)
 
                 elif page == "Player Analysis":
                     # player_stats_df = player_stats.style.format("{:.2f}")
                     roster_img_module = import_module('MODULES.roster_images')
-                    st.write(roster_img_module.get_player_headshots(team, player_stats), unsafe_allow_html=True)
+                    st.write(roster_img_module.get_player_headshots(team, player_stat_df), unsafe_allow_html=True)
 
                     # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
                     # plays_list = play_type_df.index.values
