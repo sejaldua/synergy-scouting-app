@@ -152,7 +152,7 @@ def run_analytics(games, team):
 
     return play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df
 
-
+@st.cache()
 def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     output = []
     for pt in play_types:
@@ -168,6 +168,7 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
     return fig
 
+@st.cache()
 def make_scatterplot(play_type_df):
     ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
     plays_list = play_type_df.index.values
@@ -184,7 +185,6 @@ def make_scatterplot(play_type_df):
         yaxis_title="Points per Possession",
     )
     return fig
-
 
 # helper function for debugging dictionaries
 def print_dict(d):
