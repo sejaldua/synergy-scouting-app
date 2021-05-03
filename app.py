@@ -15,7 +15,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 from pathlib import Path
-import streamlit_analytics
 
 TEAMS_TO_SCOUT = ["amherst", "bates", "colby", "hamilton", "middlebury", "trinity"]
 team_mappings = {"amherst": "AMH", "bates": "BAT", "colby": "COL", "hamilton": "HC", "middlebury": "MID", "trinity": "TCT"}
@@ -236,98 +235,97 @@ def clean_and_parse_pbp_all_games(game_files, folder):
 
 # MAIN SCRIPT BODY  
 if __name__ == "__main__":
-    with streamlit_analytics.track(save_to_json="analytics.json"):
-        st.title('Synergy Scouting App  :basketball::bar_chart:')
-        page = st.sidebar.selectbox("Choose a page", ["Homepage", "Team Analysis", "Player Analysis"])
-        if page == "Homepage":
-            st.markdown('## About the App')
-            st.write('Synergy is a data tracking platform used primarily for scouting purposes in collegiate basketball. Its current bottlenecks include poor organization, poor usability, and lack of practicality in the context of DIII scouting. Most notably, user-facing data tends to be heavily skewed towards landslide games against out-of-conference opponents, rendering insights unactionable. We created this app to enable coaches to scout opponent teams with a filterable subset of games. Coaches can choose a team to scout, select similar caliper opponents that the scouted team has played, and then view a comprehensive breakdown of that team’s strengths and weaknesses through a breakdown play types. The data is displayed in a standard tabular format with complementary data visualizations to drive insights.')
-            st.markdown('---')
-            st.markdown('## Terminology')
-            st.markdown("### Statistics Glossary")
-            glossary_stats = ["Plays/Game", "Points", "PPP", "FGM", "FGA", "FG%", "aFG%", "TO%", "FT%",]
-            for i, play in enumerate(glossary_stats):
-                with st.beta_expander(play):
-                    for f in os.listdir("GLOSSARY/stats/"):
-                        if f.startswith('%02d' % (i+1)):
-                            st.markdown(read_markdown_file("GLOSSARY/stats/" + f), unsafe_allow_html=True)
-            # st.markdown('---')
-            st.markdown('### Play Type Glossary')
-            glossary_plays = ['Pick-and-roll ball-handler', 'Pick-and-roll roll man', 'Transition', 'Off-screen', 'Spot-up', 'Isolation', 'Hand-offs', 'Cuts', 'Putbacks', 'Post-up', 'Miscellaneous']
-            for i, play in enumerate(glossary_plays):
-                with st.beta_expander(play):
-                    for f in os.listdir("GLOSSARY/play_types/"):
-                        if f.startswith('%02d' % (i+1)):
-                            st.markdown(read_markdown_file("GLOSSARY/play_types/" + f), unsafe_allow_html=True)
-            st.markdown("<small><i>Reference: </i><a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></small>", unsafe_allow_html=True)
-        else:
-            folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
-            folder = folder.lower()
-            all_opponents = get_opponents(folder)
-            opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
-            if st.sidebar.button('Run!'):
-                if opponents == []:
-                    st.error("Please choose some opponents to include in the analysis.")
-                    st.stop()
-                team = team_mappings[folder] # Team that the analysis will focus on
-                module = "MODULES.sequence_dump"
-                game_files = get_game_files(folder, opponents)
-                games = clean_and_parse_pbp_all_games(game_files, folder)
+    st.title('Synergy Scouting App  :basketball::bar_chart:')
+    page = st.sidebar.selectbox("Choose a page", ["Homepage", "Team Analysis", "Player Analysis"])
+    if page == "Homepage":
+        st.markdown('## About the App')
+        st.write('Synergy is a data tracking platform used primarily for scouting purposes in collegiate basketball. Its current bottlenecks include poor organization, poor usability, and lack of practicality in the context of DIII scouting. Most notably, user-facing data tends to be heavily skewed towards landslide games against out-of-conference opponents, rendering insights unactionable. We created this app to enable coaches to scout opponent teams with a filterable subset of games. Coaches can choose a team to scout, select similar caliper opponents that the scouted team has played, and then view a comprehensive breakdown of that team’s strengths and weaknesses through a breakdown play types. The data is displayed in a standard tabular format with complementary data visualizations to drive insights.')
+        st.markdown('---')
+        st.markdown('## Terminology')
+        st.markdown("### Statistics Glossary")
+        glossary_stats = ["Plays/Game", "Points", "PPP", "FGM", "FGA", "FG%", "aFG%", "TO%", "FT%",]
+        for i, play in enumerate(glossary_stats):
+            with st.beta_expander(play):
+                for f in os.listdir("GLOSSARY/stats/"):
+                    if f.startswith('%02d' % (i+1)):
+                        st.markdown(read_markdown_file("GLOSSARY/stats/" + f), unsafe_allow_html=True)
+        # st.markdown('---')
+        st.markdown('### Play Type Glossary')
+        glossary_plays = ['Pick-and-roll ball-handler', 'Pick-and-roll roll man', 'Transition', 'Off-screen', 'Spot-up', 'Isolation', 'Hand-offs', 'Cuts', 'Putbacks', 'Post-up', 'Miscellaneous']
+        for i, play in enumerate(glossary_plays):
+            with st.beta_expander(play):
+                for f in os.listdir("GLOSSARY/play_types/"):
+                    if f.startswith('%02d' % (i+1)):
+                        st.markdown(read_markdown_file("GLOSSARY/play_types/" + f), unsafe_allow_html=True)
+        st.markdown("<small><i>Reference: </i><a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></small>", unsafe_allow_html=True)
+    else:
+        folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
+        folder = folder.lower()
+        all_opponents = get_opponents(folder)
+        opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
+        if st.sidebar.button('Run!'):
+            if opponents == []:
+                st.error("Please choose some opponents to include in the analysis.")
+                st.stop()
+            team = team_mappings[folder] # Team that the analysis will focus on
+            module = "MODULES.sequence_dump"
+            game_files = get_game_files(folder, opponents)
+            games = clean_and_parse_pbp_all_games(game_files, folder)
 
-                # Run whatever analysis you'd like on the data
-                stat_module = import_module(module)
-                # plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
-                play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
+            # Run whatever analysis you'd like on the data
+            stat_module = import_module(module)
+            # plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
+            play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
 
 
-                if page == "Team Analysis":
-                    st.markdown('### Play Type Breakdown')
-                    st.dataframe(play_type_stat_df.style.format("{:.2f}"))
-                    rel_play_types = list(play_type_stat_df.index)
+            if page == "Team Analysis":
+                st.markdown('### Play Type Breakdown')
+                st.dataframe(play_type_stat_df.style.format("{:.2f}"))
+                rel_play_types = list(play_type_stat_df.index)
 
-                    # slice all play sequences into list of first 4 events for hierarchical treemap viz
-                    treemap = stat_module.make_treemap(rel_play_types, play_type_plays_dict, play_type_stat_dict)
-                    st.plotly_chart(treemap, use_container_width=True)
+                # slice all play sequences into list of first 4 events for hierarchical treemap viz
+                treemap = stat_module.make_treemap(rel_play_types, play_type_plays_dict, play_type_stat_dict)
+                st.plotly_chart(treemap, use_container_width=True)
 
-                    # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
-                    scatterplot = stat_module.make_scatterplot(play_type_stat_df)
-                    st.plotly_chart(scatterplot)
+                # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
+                scatterplot = stat_module.make_scatterplot(play_type_stat_df)
+                st.plotly_chart(scatterplot)
 
-                elif page == "Player Analysis":
-                    # player_stats_df = player_stats.style.format("{:.2f}")
-                    roster_img_module = import_module('MODULES.roster_images')
-                    st.write(roster_img_module.get_player_headshots(team, player_stat_df), unsafe_allow_html=True)
+            elif page == "Player Analysis":
+                # player_stats_df = player_stats.style.format("{:.2f}")
+                roster_img_module = import_module('MODULES.roster_images')
+                st.write(roster_img_module.get_player_headshots(team, player_stat_df), unsafe_allow_html=True)
 
-                    # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
-                    # plays_list = play_type_df.index.values
-                    # ppp_and_poss_df['Play'] = plays_list
+                # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
+                # plays_list = play_type_df.index.values
+                # ppp_and_poss_df['Play'] = plays_list
 
-                    # fig = px.scatter(ppp_and_poss_df,
-                    #     x=ppp_and_poss_df["Plays/Game"],
-                    #     y=ppp_and_poss_df["PPP"],
-                    #     hover_name=ppp_and_poss_df["Play"],
-                    #     hover_data=["PPP"],
-                    #     color="Play"
-                    # )
+                # fig = px.scatter(ppp_and_poss_df,
+                #     x=ppp_and_poss_df["Plays/Game"],
+                #     y=ppp_and_poss_df["PPP"],
+                #     hover_name=ppp_and_poss_df["Play"],
+                #     hover_data=["PPP"],
+                #     color="Play"
+                # )
 
-                    # fig.update_layout(
-                    #     xaxis_title="Plays/Game",
-                    #     yaxis_title="Points per Possession",
-                    # )
+                # fig.update_layout(
+                #     xaxis_title="Plays/Game",
+                #     yaxis_title="Points per Possession",
+                # )
 
-                    # st.write(fig)
+                # st.write(fig)
 
-        hide_footer_style = """
-        <style>
-        footer {visibility: hidden;}   
-        footer:after {
-                content:'Built by Sejal Dua, Sook-Hee Evans, and Noah Zhang | Tufts University | Spring 2021'; 
-                visibility: visible;
-                display: block;
-                position: relative;
-                #background-color: red;
-                padding: 5px;
-                top: 2px;
-            } 
-        """
-        st.markdown(hide_footer_style, unsafe_allow_html=True)
+    hide_footer_style = """
+    <style>
+    footer {visibility: hidden;}   
+    footer:after {
+            content:'Built by Sejal Dua, Sook-Hee Evans, and Noah Zhang | Tufts University | Spring 2021'; 
+            visibility: visible;
+            display: block;
+            position: relative;
+            #background-color: red;
+            padding: 5px;
+            top: 2px;
+        } 
+    """
+    st.markdown(hide_footer_style, unsafe_allow_html=True)

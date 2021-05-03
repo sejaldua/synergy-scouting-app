@@ -1,4 +1,3 @@
 plotly
 bs4
 Levenshtein
-streamlit-analytics
