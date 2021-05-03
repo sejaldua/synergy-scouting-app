@@ -1,4 +1,5 @@
 import pandas as pd
+pd.options.mode.chained_assignment = None
 import numpy as np
 import plotly.express as px
 import streamlit as st
@@ -171,8 +172,7 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
 @st.cache(allow_output_mutation=True)
 def make_scatterplot(play_type_df):
     ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
-    plays_list = play_type_df.index.values
-    ppp_and_poss_df['Play'] = plays_list
+    ppp_and_poss_df['Play'] = play_type_df.index.values
     fig = px.scatter(ppp_and_poss_df,
         x=ppp_and_poss_df["Plays/Game"],
         y=ppp_and_poss_df["PPP"],
