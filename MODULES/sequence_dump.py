@@ -153,6 +153,9 @@ def run_analytics(games, team):
 
     return play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df
 
+# get all play sequences and trim them to only focus on first 4 events
+# wrangle the data into a dataframe of size (# of plays) x (4)
+# make plotly treemap to visualize most frequent plays and subplays
 @st.cache(allow_output_mutation=True)
 def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     output = []
@@ -162,6 +165,7 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
                 output.append(sequence[1:5])
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
     df['FG%'] = df['A'].apply(lambda x: round(play_type_stats_dict[x]['FG%'], 2))
+    # define a root node to be the parent of the hierarchical data
     df['Overall'] = 'Overall'
     midpoint = np.mean([play_type_stats_dict[key]['FG%'] for key in play_type_stats_dict.keys() if not pd.isna(play_type_stats_dict[key]['FG%'])])
     fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], color_continuous_scale='RdBu', color_continuous_midpoint=midpoint, color='FG%', hover_data={'FG%':':.2f'})
@@ -169,6 +173,9 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
     return fig
 
+
+# visualize play type efficacy via scatterplot of PPP vs frequency of plays
+# each point on the graph represents aggregate stats for each play type 
 @st.cache(allow_output_mutation=True)
 def make_scatterplot(play_type_df):
     ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
