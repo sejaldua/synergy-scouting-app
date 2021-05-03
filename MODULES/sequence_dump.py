@@ -134,7 +134,7 @@ def get_player_play_dict(player_dict):
                     player_play_dict[player][seq].append(play)
     return player_play_dict
 
-@st.cache()
+@st.cache(allow_output_mutation=True)
 def run_analytics(games, team):
     # Build dictionaries for querying by play type (player agnostic)
     play_type_plays_dict = get_plays_dict(games, team)
@@ -152,7 +152,7 @@ def run_analytics(games, team):
 
     return play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df
 
-@st.cache()
+@st.cache(allow_output_mutation=True)
 def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     output = []
     for pt in play_types:
@@ -168,7 +168,7 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
     fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
     return fig
 
-@st.cache()
+@st.cache(allow_output_mutation=True)
 def make_scatterplot(play_type_df):
     ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
     plays_list = play_type_df.index.values
