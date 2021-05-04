@@ -171,11 +171,8 @@ def get_game_files(folder, opponents):
                 game_files.append(file)
     return game_files
 
-def write_score(html_text, team, opponents, score_1, score_2):
-    print(opponents)
+def write_score(df, matches, team, opponents, score_1, score_2):
     teams = []
-    regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td><\/tr>.*?<\/tbody><\/table>'
-    matches = re.finditer(regex, html_text, re.MULTILINE | re.DOTALL)
     for match in matches:
         team_table = match.group()
         break
@@ -191,13 +188,21 @@ def write_score(html_text, team, opponents, score_1, score_2):
             if team_name in match:
                 teams.append(team_name)
         if team in match:
+            home = True if len(teams) == 0 else False
             teams.append(team)
         if len(teams) == 2:
-            st.write(teams[0] + " (" + str(score_1) + ") - " + teams[1] + " (" + str(score_2) + ")")
-            return
+            score_diff = score_1 - score_2 if home else score_2 - score_1
+            outcome = 'W' if score_diff >= 0 else 'L'
+            break
+
+    df.loc[len(df)] = [teams[0], score_1, teams[1], score_2, outcome, score_diff]
+    # st.write( + " (" + str(score_1) + ") - " + teams[1] + " (" + str(score_2) + ") " + str(score_diff) + " " + outcome)
+    return df
 
 def clean_and_parse_pbp_all_games(game_files, folder, opponents):
     global print_err, keep_row, raw_data, possessions, teams
+
+    score_df = pd.DataFrame(columns=['Home', 'Home Score', 'Away', 'Away Score', 'Outcome', 'Point Differential'])
 
     # Loop through each game and create our internal play-by-play structure
     games = []
@@ -254,11 +259,16 @@ def clean_and_parse_pbp_all_games(game_files, folder, opponents):
         addStats()
 
         # print score for context
-        write_score(playbyplay, folder.title(), opponents, possessions[-1]['score_1'], possessions[-1]['score_2'])
+        regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td><\/tr>.*?<\/tbody><\/table>'
+        matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
+        score_df = write_score(score_df, matches, folder.title(), opponents, possessions[-1]['score_1'], possessions[-1]['score_2'])
         
         # Add the list of possessions to the games array and reset for the next game
         games.append(copy.deepcopy(possessions))
         possessions = []
+    
+    st.markdown('### Box Scores')
+    st.dataframe(score_df)
     return games
 
 # MAIN SCRIPT BODY  
