@@ -171,8 +171,41 @@ def get_game_files(folder, opponents):
                 game_files.append(file)
     return game_files
 
-def clean_and_parse_pbp_all_games(game_files, folder):
+def add_box_score_to_df(df, matches, team, opponents, score_1, score_2):
+    teams = []
+    for match in matches:
+        team_table = match.group()
+        break
+    # Grab box score teams using a regex
+    regex = r'<td class="TierData">(.*?)<\/td>'
+    matches = re.findall(regex, team_table)
+    parser = MyHTMLParser()
+    # Extract team data
+    for match in matches:
+        # get rid of HTML tags
+        parser.feed(match)
+        # look for opponents that are not the team of interest
+        for team_name in opponents:
+            if team_name in match:
+                teams.append(team_name)
+        # if we have scraped team of interest, denote if home or away
+        if team in match:
+            home = True if len(teams) == 0 else False
+            teams.append(team)
+        # once we figured out the two competitors, compute score differential and outcome
+        if len(teams) == 2:
+            score_diff = score_1 - score_2 if home else score_2 - score_1
+            outcome = 'W' if score_diff >= 0 else 'L'
+            break
+
+    df.loc[len(df)] = [teams[0], score_1, teams[1], score_2, outcome, score_diff]
+    # st.write( + " (" + str(score_1) + ") - " + teams[1] + " (" + str(score_2) + ") " + str(score_diff) + " " + outcome)
+    return df
+
+def clean_and_parse_pbp_all_games(game_files, folder, opponents):
     global print_err, keep_row, raw_data, possessions, teams
+
+    score_df = pd.DataFrame(columns=['Home', 'Home Score', 'Away', 'Away Score', 'Outcome', 'Point Differential'])
 
     # Loop through each game and create our internal play-by-play structure
     games = []
@@ -187,7 +220,7 @@ def clean_and_parse_pbp_all_games(game_files, folder):
             # Grab each row ("play") of the play-by-play using a regex
             regex = r'<tr class="PlayByPlayRow.*?<\/tr>'
             matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
-            
+        
             # Initialize parsing variables
             parser = MyHTMLParser()
             prev_team = ""
@@ -227,10 +260,26 @@ def clean_and_parse_pbp_all_games(game_files, folder):
         
         cleanPossessions()
         addStats()
+
+        # print score for context
+        regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td><\/tr>.*?<\/tbody><\/table>'
+        matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
+        score_df = add_box_score_to_df(score_df, matches, folder.title(), opponents, possessions[-1]['score_1'], possessions[-1]['score_2'])
         
         # Add the list of possessions to the games array and reset for the next game
         games.append(copy.deepcopy(possessions))
         possessions = []
+    
+    st.markdown('### Box Scores')
+    def colorcode(s):
+        if s.Outcome == 'W':
+            return ['color: black']*4 + ['color: green']*2
+        else:
+            return ['color: black']*4 + ['color: red']*2
+
+
+    score_df = score_df.style.apply(colorcode, axis=1)
+    st.dataframe(score_df)
     return games
 
 # MAIN SCRIPT BODY  
@@ -270,11 +319,10 @@ if __name__ == "__main__":
             team = team_mappings[folder] # Team that the analysis will focus on
             module = "MODULES.sequence_dump"
             game_files = get_game_files(folder, opponents)
-            games = clean_and_parse_pbp_all_games(game_files, folder)
+            games = clean_and_parse_pbp_all_games(game_files, folder, all_opponents)
 
             # Run whatever analysis you'd like on the data
             stat_module = import_module(module)
-            # plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
             play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
 
 
