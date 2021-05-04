@@ -171,7 +171,32 @@ def get_game_files(folder, opponents):
                 game_files.append(file)
     return game_files
 
-def clean_and_parse_pbp_all_games(game_files, folder):
+def write_score(html_text, team, opponents, score_1, score_2):
+    print(opponents)
+    teams = []
+    regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td><\/tr>.*?<\/tbody><\/table>'
+    matches = re.finditer(regex, html_text, re.MULTILINE | re.DOTALL)
+    for match in matches:
+        team_table = match.group()
+        break
+    # print(team_table)
+    # Grab each row ("play") of the play-by-play using a regex
+    regex = r'<td class="TierData">(.*?)<\/td>'
+    matches = re.findall(regex, team_table)
+    parser = MyHTMLParser()
+    # Extract team data
+    for match in matches:
+        parser.feed(match)
+        for team_name in opponents:
+            if team_name in match:
+                teams.append(team_name)
+        if team in match:
+            teams.append(team)
+        if len(teams) == 2:
+            st.write(teams[0] + " (" + str(score_1) + ") - " + teams[1] + " (" + str(score_2) + ")")
+            return
+
+def clean_and_parse_pbp_all_games(game_files, folder, opponents):
     global print_err, keep_row, raw_data, possessions, teams
 
     # Loop through each game and create our internal play-by-play structure
@@ -187,7 +212,7 @@ def clean_and_parse_pbp_all_games(game_files, folder):
             # Grab each row ("play") of the play-by-play using a regex
             regex = r'<tr class="PlayByPlayRow.*?<\/tr>'
             matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
-            
+        
             # Initialize parsing variables
             parser = MyHTMLParser()
             prev_team = ""
@@ -227,6 +252,9 @@ def clean_and_parse_pbp_all_games(game_files, folder):
         
         cleanPossessions()
         addStats()
+
+        # print score for context
+        write_score(playbyplay, folder.title(), opponents, possessions[-1]['score_1'], possessions[-1]['score_2'])
         
         # Add the list of possessions to the games array and reset for the next game
         games.append(copy.deepcopy(possessions))
@@ -270,11 +298,10 @@ if __name__ == "__main__":
             team = team_mappings[folder] # Team that the analysis will focus on
             module = "MODULES.sequence_dump"
             game_files = get_game_files(folder, opponents)
-            games = clean_and_parse_pbp_all_games(game_files, folder)
+            games = clean_and_parse_pbp_all_games(game_files, folder, all_opponents)
 
             # Run whatever analysis you'd like on the data
             stat_module = import_module(module)
-            # plays_dict, play_type_df, play_type_dict, player_stats = stat_module.run_analytics(games, team)
             play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
 
 
