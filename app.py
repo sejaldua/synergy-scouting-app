@@ -171,15 +171,19 @@ def get_game_files(folder, opponents):
                 game_files.append(file)
     return game_files
 
+# get home team, home score, away team, away score, outcome, and 
+# score differential for game of interest in filtered subset
 def add_box_score_to_df(df, matches, team, opponents, score_1, score_2):
     teams = []
     for match in matches:
         team_table = match.group()
         break
+
     # Grab box score teams using a regex
     regex = r'<td class="TierData">(.*?)<\/td>'
     matches = re.findall(regex, team_table)
     parser = MyHTMLParser()
+
     # Extract team data
     for match in matches:
         # get rid of HTML tags
@@ -192,19 +196,20 @@ def add_box_score_to_df(df, matches, team, opponents, score_1, score_2):
         if team in match:
             home = True if len(teams) == 0 else False
             teams.append(team)
-        # once we figured out the two competitors, compute score differential and outcome
+        # once we figured out the two competitors, compute score differential and outcome based on whether team of interest is home or away
         if len(teams) == 2:
             score_diff = score_1 - score_2 if home else score_2 - score_1
             outcome = 'W' if score_diff >= 0 else 'L'
             break
 
+    # append row of box score data to end of dataframe
     df.loc[len(df)] = [teams[0], score_1, teams[1], score_2, outcome, score_diff]
-    # st.write( + " (" + str(score_1) + ") - " + teams[1] + " (" + str(score_2) + ") " + str(score_diff) + " " + outcome)
     return df
 
 def clean_and_parse_pbp_all_games(game_files, folder, opponents):
     global print_err, keep_row, raw_data, possessions, teams
 
+    # initialize box score dataframe
     score_df = pd.DataFrame(columns=['Home', 'Home Score', 'Away', 'Away Score', 'Outcome', 'Point Differential'])
 
     # Loop through each game and create our internal play-by-play structure
@@ -242,8 +247,7 @@ def clean_and_parse_pbp_all_games(game_files, folder, opponents):
                             teams[possession["team"]] = teams[possession["team"]] + 1
                         else: teams[possession["team"]] = 1
                         
-                        # If two adjacent possessions come from the same team in the same period,
-                        # merge them
+                        # If two adjacent possessions come from the same team in the same period, merge them
                         if possession["team"] == prev_team and possession["period"] == prev_period:
                             mergePossession(possession)
                         else: possessions.append(possession)
@@ -271,14 +275,7 @@ def clean_and_parse_pbp_all_games(game_files, folder, opponents):
         possessions = []
     
     st.markdown('### Box Scores')
-    def colorcode(s):
-        if s.Outcome == 'W':
-            return ['color: black']*4 + ['color: green']*2
-        else:
-            return ['color: black']*4 + ['color: red']*2
-
-
-    score_df = score_df.style.apply(colorcode, axis=1)
+    score_df = score_df.style.apply(lambda x: ['color: black']*4 + ['color: green']*2 if x.Outcome == 'W' else ['color: black']*4 + ['color: red']*2, axis=1)
     st.dataframe(score_df)
     return games
 
