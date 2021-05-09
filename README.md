@@ -29,8 +29,10 @@ Using an HTML parser, this app scrapes collegiate basketball play-by-play data f
 In the above data snippet representing one possession that took place in the first quarter of a game between Amherst and Middlebury, we see many attributes of interest. Since this project focuses on play types, we chose to hone in on the "plays" field. We can observe that in the above posession, there was a pick-and-roll (ball handler) play which resulted in a spot-up play thereafter. Given that we wanted to do an analysis of the efficacy of various play types in order to scout an opponent and tailor game preparation based on their strengths and weaknesses, we needed to wrangle this possession data into sequences of events which can be queried by play type and/or player. The following dictionaries form the basis of our project:
 
 ### Play type dictionary (sequences of events)
-
 *{ 'play type': [play sequence 1, play sequence 2, ...]}*
+<details>
+<summary>See example</summary>
+
 ```
 {
 'Spot-Up': [['25 Fru Che', 'Spot-Up', 'Drives Right', 'To Basket', 'Turnover'], ['3 Devonn Allen', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Make 3 Pts'], ... ], 
@@ -40,9 +42,13 @@ In the above data snippet representing one possession that took place in the fir
 ...
 }
 ```
+</details>
 
 ### Play type dictionary (statistics)
-*{ 'play type': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+*{ 'play type': {'stat 1': ##.##, 'stat 2': ##.##, 'stat 3': ##.##, ...}}*
+<details>
+<summary>See example</summary>
+
 ```
 {
 'Spot-Up': {'Plays/Game': 20.0, 'Points': 23.0, 'PPP': 1.15, 'FGM': 7.0, 'FGA': 17.0, 'FG%': 41.17647058823529, 'aFG%': 64.70588235294117, 'TO%': 10.0, 'FT%': 33.33333333333333}, 
@@ -52,9 +58,13 @@ In the above data snippet representing one possession that took place in the fir
 ...
 }
 ```
+</details>
 
 ### Player dictionary (sequences of events)
 *{ 'player': [play sequence 1, play sequence 2, ...]}*
+<details>
+<summary>See example</summary>
+
 ```
 {
 '11 Grant Robinson': [['11 Grant Robinson', 'Spot-Up', 'No Dribble Jumper', 'Guarded', 'Long/3pt', 'Miss 3 Pts'], ['11 Grant Robinson', 'Spot-Up', 'Drives Right', 'To Basket', 'Make 2 Pts'], ... ]
@@ -63,9 +73,13 @@ In the above data snippet representing one possession that took place in the fir
 ...
 }
 ```
+</details>
 
 ### Player dictionary (statistics)
-*{ 'player': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+*{ 'player': {'stat 1': ##.##, 'stat 2': ##.##, 'stat 3': ##.##, ...}}*
+<details>
+<summary>See example</summary>
+
 ```
 {
 '11 Grant Robinson': {'Plays/Game': 19.0, 'Points': 17.0, 'PPP': 0.8947368421052632, 'FGM': 7.0, 'FGA': 13.0, 'FG%': 53.84615384615385, 'aFG%': 65.38461538461539, 'TO%': 5.263157894736842, 'FT%': nan},
@@ -76,6 +90,7 @@ In the above data snippet representing one possession that took place in the fir
 ...
 }
 ```
+</details>
 
 ## Usage
 
