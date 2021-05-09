@@ -41,6 +41,8 @@ Synergy is a data tracking platform used primarily for scouting purposes in coll
 | Putbacks | Putbacks are the tip ins and quick shots after offensive rebounds. Very rarely this will also includes long rebounds that result in a quick shot. Due to most shots being right at the rim, these are generally very high PPP opportunities. |
 | Post-up | These are all of the traditional post-ups we’re accustomed to. This category counts back-to-the-basket and face-up post possessions. |
 | Miscellaneous | This is a potpourri of possessions that don’t fit into any of the other categories. |
+
+<small><i>Reference: </i><a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></small>
 </details>
 
 ## Data Wrangling
