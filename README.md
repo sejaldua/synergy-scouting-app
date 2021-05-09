@@ -45,7 +45,7 @@ In the above data snippet representing one possession that took place in the fir
 </details>
 
 ### Play type dictionary (statistics)
-*{ 'play type': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+*{ 'play type': {'stat 1': ##.##, 'stat 2': ##.##, 'stat 3': ##.##, ...}}*
 <details>
 <summary>See example</summary>
 
@@ -76,7 +76,7 @@ In the above data snippet representing one possession that took place in the fir
 </details>
 
 ### Player dictionary (statistics)
-*{ 'player': {'stat1': ##.##, 'stat2': ##.##, 'stat3': ##.##, ...}}*
+*{ 'player': {'stat 1': ##.##, 'stat 2': ##.##, 'stat 3': ##.##, ...}}*
 <details>
 <summary>See example</summary>
 
