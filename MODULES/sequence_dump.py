@@ -157,18 +157,18 @@ def run_analytics(games, team):
 # wrangle the data into a dataframe of size (# of plays) x (4)
 # make plotly treemap to visualize most frequent plays and subplays
 @st.cache(allow_output_mutation=True)
-def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
+def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict, stat):
     output = []
     for pt in play_types:
         for sequence in play_type_plays_dict[pt]:
             if sequence[1] == pt:
                 output.append(sequence[1:5])
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
-    df['FG%'] = df['A'].apply(lambda x: round(play_type_stats_dict[x]['FG%'], 2))
+    df[stat] = df['A'].apply(lambda x: round(play_type_stats_dict[x][stat], 2))
     # define a root node to be the parent of the hierarchical data
     df['Overall'] = 'Overall'
-    midpoint = np.mean([play_type_stats_dict[key]['FG%'] for key in play_type_stats_dict.keys() if not pd.isna(play_type_stats_dict[key]['FG%'])])
-    fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], color_continuous_scale='RdBu', color_continuous_midpoint=midpoint, color='FG%', hover_data={'FG%':':.2f'})
+    midpoint = np.mean([play_type_stats_dict[key][stat] for key in play_type_stats_dict.keys() if not pd.isna(play_type_stats_dict[key][stat])])
+    fig = px.treemap(df, path=['Overall', 'A', 'B', 'C'], color_continuous_scale='RdBu', color_continuous_midpoint=midpoint, color=stat, hover_data={stat:':.2f'})
     # fig.update_traces(marker_cmin=0, marker_cmax=100, marker_cmid = mid, selector=dict(type='treemap'))
     fig.update_layout(margin=dict(l=0, r=0, t=20, b=0))
     return fig
