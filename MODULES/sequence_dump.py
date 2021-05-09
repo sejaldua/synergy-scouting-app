@@ -177,19 +177,19 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict, stat):
 # visualize play type efficacy via scatterplot of PPP vs frequency of plays
 # each point on the graph represents aggregate stats for each play type 
 @st.cache(allow_output_mutation=True)
-def make_scatterplot(play_type_df):
-    ppp_and_poss_df = play_type_df[['Plays/Game','PPP']]
-    ppp_and_poss_df['Play'] = play_type_df.index.values
-    fig = px.scatter(ppp_and_poss_df,
-        x=ppp_and_poss_df["Plays/Game"],
-        y=ppp_and_poss_df["PPP"],
-        hover_name=ppp_and_poss_df["Play"],
-        hover_data=["PPP"],
+def make_scatterplot(play_type_df, stat):
+    mini_df = play_type_df[['Plays/Game',stat]]
+    mini_df['Play'] = play_type_df.index.values
+    fig = px.scatter(mini_df,
+        x=mini_df["Plays/Game"],
+        y=mini_df[stat],
+        hover_name=mini_df["Play"],
+        hover_data=[stat],
         color="Play"
     )
     fig.update_layout(
         xaxis_title="Plays/Game",
-        yaxis_title="Points per Possession",
+        yaxis_title=stat,
     )
     return fig
 
