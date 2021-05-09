@@ -320,16 +320,20 @@ if __name__ == "__main__":
         if page == "Team Analysis":
             st.markdown('### Play Type Breakdown')
             st.dataframe(play_type_stat_df.style.format("{:.2f}"))
+
+            # get list of play types and list of stats without nans
             rel_play_types = list(play_type_stat_df.index)
+            stat_options = list(play_type_stat_df.dropna(axis=1, how='any').columns[1:])
 
             # slice all play sequences into list of first 4 events for hierarchical treemap viz
             st.markdown("### Treemap Visualization")
-            color_stat = st.selectbox('Choose a stat to investigate further', list(play_type_stat_df.dropna(axis=1, how='any').columns[1:]))
+            color_stat = st.selectbox('Choose a stat to investigate further', stat_options)
             treemap = stat_module.make_treemap(rel_play_types, play_type_plays_dict, play_type_stat_dict, color_stat)
             st.plotly_chart(treemap, use_container_width=True)
 
             # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
-            scatterplot = stat_module.make_scatterplot(play_type_stat_df)
+            y_axis = st.selectbox('Choose a stat for the y-axis', stat_options)
+            scatterplot = stat_module.make_scatterplot(play_type_stat_df, y_axis)
             st.plotly_chart(scatterplot)
 
         elif page == "Player Analysis":
