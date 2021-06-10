@@ -266,7 +266,7 @@ def clean_and_parse_pbp_all_games(game_files, folder, opponents):
         addStats()
 
         # print score for context
-        regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td><\/tr>.*?<\/tbody><\/table>'
+        regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td>.*?<\/tbody><\/table>'
         matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
         score_df = add_box_score_to_df(score_df, matches, folder.title(), opponents, possessions[-1]['score_1'], possessions[-1]['score_2'])
         
