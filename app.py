@@ -266,7 +266,7 @@ def clean_and_parse_pbp_all_games(game_files, folder, opponents):
         addStats()
 
         # print score for context
-        regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td><\/tr>.*?<\/tbody><\/table>'
+        regex = r'<tbody><tr><td class="TierHeader1">Team<\/td><td class="TierHeader1">Final<\/td><td class="TierHeader1">1<\/td><td class="TierHeader1">2<\/td>.*?<\/tbody><\/table>'
         matches = re.finditer(regex, playbyplay, re.MULTILINE | re.DOTALL)
         score_df = add_box_score_to_df(score_df, matches, folder.title(), opponents, possessions[-1]['score_1'], possessions[-1]['score_2'])
         
@@ -305,60 +305,60 @@ if __name__ == "__main__":
                         st.markdown(read_markdown_file("GLOSSARY/play_types/" + f), unsafe_allow_html=True)
         st.markdown("<small><i>Reference: </i><a href='https://fansided.com/2017/09/08/nylon-calculus-understanding-synergy-play-type-data/'>Nylon Calculus: How to understand Synergy play type categories</a></small>", unsafe_allow_html=True)
     else:
-        folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT])
+        folder = st.sidebar.selectbox('Choose a team to scout', [t.title() for t in TEAMS_TO_SCOUT], index=0)
         folder = folder.lower()
         all_opponents = get_opponents(folder)
-        opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents)
-        if st.sidebar.button('Run!'):
-            if opponents == []:
-                st.error("Please choose some opponents to include in the analysis.")
-                st.stop()
-            team = team_mappings[folder] # Team that the analysis will focus on
-            module = "MODULES.sequence_dump"
-            game_files = get_game_files(folder, opponents)
-            games = clean_and_parse_pbp_all_games(game_files, folder, all_opponents)
+        opponents = st.sidebar.multiselect('Choose opponents to include in the scouting report', all_opponents, all_opponents)
+        team = team_mappings[folder] # Team that the analysis will focus on
+        module = "MODULES.sequence_dump"
+        game_files = get_game_files(folder, opponents)
+        games = clean_and_parse_pbp_all_games(game_files, folder, all_opponents)
+        # Run whatever analysis you'd like on the data
+        stat_module = import_module(module)
+        play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
 
-            # Run whatever analysis you'd like on the data
-            stat_module = import_module(module)
-            play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
+        if page == "Team Analysis":
+            st.markdown('### Play Type Breakdown')
+            st.dataframe(play_type_stat_df.style.format("{:.2f}"))
 
+            # get list of play types and list of stats without nans
+            rel_play_types = list(play_type_stat_df.index)
+            stat_options = list(play_type_stat_df.dropna(axis=1, how='any').columns[1:])
 
-            if page == "Team Analysis":
-                st.markdown('### Play Type Breakdown')
-                st.dataframe(play_type_stat_df.style.format("{:.2f}"))
-                rel_play_types = list(play_type_stat_df.index)
+            # slice all play sequences into list of first 4 events for hierarchical treemap viz
+            st.markdown("### Treemap Visualization")
+            color_stat = st.selectbox('Choose a stat to investigate further', stat_options)
+            treemap = stat_module.make_treemap(rel_play_types, play_type_plays_dict, play_type_stat_dict, color_stat)
+            st.plotly_chart(treemap, use_container_width=True)
 
-                # slice all play sequences into list of first 4 events for hierarchical treemap viz
-                treemap = stat_module.make_treemap(rel_play_types, play_type_plays_dict, play_type_stat_dict)
-                st.plotly_chart(treemap, use_container_width=True)
+            # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
+            y_axis = st.selectbox('Choose a stat for the y-axis', stat_options)
+            scatterplot = stat_module.make_scatterplot(play_type_stat_df, y_axis)
+            st.plotly_chart(scatterplot)
 
-                # visualize play type efficacy via scatterplot of PPP versus frequency of plays / game
-                scatterplot = stat_module.make_scatterplot(play_type_stat_df)
-                st.plotly_chart(scatterplot)
+        elif page == "Player Analysis":
+            # player_stats_df = player_stats.style.format("{:.2f}")
+            roster_img_module = import_module('MODULES.roster_images')
+            st.write(roster_img_module.get_player_headshots(team, player_stat_df), unsafe_allow_html=True)
 
-            elif page == "Player Analysis":
-                # player_stats_df = player_stats.style.format("{:.2f}")
-                roster_img_module = import_module('MODULES.roster_images')
-                st.write(roster_img_module.get_player_headshots(team, player_stat_df), unsafe_allow_html=True)
+            # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
+            # plays_list = play_type_df.index.values
+            # ppp_and_poss_df['Play'] = plays_list
 
-                # ppp_and_poss_df = player_stats[['Plays/Game','PPP']]
-                # plays_list = play_type_df.index.values
-                # ppp_and_poss_df['Play'] = plays_list
+            # fig = px.scatter(ppp_and_poss_df,
+            #     x=ppp_and_poss_df["Plays/Game"],
+            #     y=ppp_and_poss_df["PPP"],
+            #     hover_name=ppp_and_poss_df["Play"],
+            #     hover_data=["PPP"],
+            #     color="Play"
+            # )
 
-                # fig = px.scatter(ppp_and_poss_df,
-                #     x=ppp_and_poss_df["Plays/Game"],
-                #     y=ppp_and_poss_df["PPP"],
-                #     hover_name=ppp_and_poss_df["Play"],
-                #     hover_data=["PPP"],
-                #     color="Play"
-                # )
+            # fig.update_layout(
+            #     xaxis_title="Plays/Game",
+            #     yaxis_title="Points per Possession",
+            # )
 
-                # fig.update_layout(
-                #     xaxis_title="Plays/Game",
-                #     yaxis_title="Points per Possession",
-                # )
-
-                # st.write(fig)
+            # st.write(fig)
 
     hide_footer_style = """
     <style>
