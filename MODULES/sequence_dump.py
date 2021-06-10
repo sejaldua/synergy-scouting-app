@@ -164,6 +164,7 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict):
             if sequence[1] == pt:
                 output.append(sequence[1:5])
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
+    df.dropna(inplace=True)
     df['FG%'] = df['A'].apply(lambda x: round(play_type_stats_dict[x]['FG%'], 2))
     # define a root node to be the parent of the hierarchical data
     df['Overall'] = 'Overall'
