@@ -274,10 +274,9 @@ def clean_and_parse_pbp_all_games(game_files, folder, opponents):
         games.append(copy.deepcopy(possessions))
         possessions = []
     
-    st.markdown('### Box Scores')
+
     score_df = score_df.style.apply(lambda x: ['color: black']*4 + ['color: green']*2 if x.Outcome == 'W' else ['color: black']*4 + ['color: red']*2, axis=1)
-    st.dataframe(score_df)
-    return games
+    return games, score_df
 
 # MAIN SCRIPT BODY  
 if __name__ == "__main__":
@@ -312,12 +311,14 @@ if __name__ == "__main__":
         team = team_mappings[folder] # Team that the analysis will focus on
         module = "MODULES.sequence_dump"
         game_files = get_game_files(folder, opponents)
-        games = clean_and_parse_pbp_all_games(game_files, folder, all_opponents)
+        games, score_df = clean_and_parse_pbp_all_games(game_files, folder, all_opponents)
         # Run whatever analysis you'd like on the data
         stat_module = import_module(module)
         play_type_plays_dict, play_type_stat_df, play_type_stat_dict, player_stat_df = stat_module.run_analytics(games, team)
 
         if page == "Team Analysis":
+            st.markdown('### Box Scores')
+            st.dataframe(score_df)
             st.markdown('### Play Type Breakdown')
             st.dataframe(play_type_stat_df.style.format("{:.2f}"))
 
