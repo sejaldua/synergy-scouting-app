@@ -165,7 +165,7 @@ def make_treemap(play_types, play_type_plays_dict, play_type_stats_dict, stat):
                 output.append(sequence[1:5])
     df = pd.DataFrame(output, columns=['A', 'B', 'C', 'D'])
     df.dropna(inplace=True)
-    df['FG%'] = df['A'].apply(lambda x: round(play_type_stats_dict[x]['FG%'], 2))
+    df[stat] = df['A'].apply(lambda x: round(play_type_stats_dict[x][stat], 2))
     # define a root node to be the parent of the hierarchical data
     df['Overall'] = 'Overall'
     midpoint = np.mean([play_type_stats_dict[key][stat] for key in play_type_stats_dict.keys() if not pd.isna(play_type_stats_dict[key][stat])])
